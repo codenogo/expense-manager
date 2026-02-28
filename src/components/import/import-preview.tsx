@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { bulkCreateTransactions, type ImportRow } from '@/lib/actions/import'
 import { categorize, type CategorizationRule } from '@/lib/categorizer'
 import type { Tables } from '@/types/database'
+import { formatKES } from '@/components/ui/currency'
 
 interface MappedTransaction {
   date: string
@@ -19,10 +20,6 @@ interface ImportPreviewProps {
   rules: CategorizationRule[]
   onBack: () => void
   onDone: (imported: number) => void
-}
-
-function formatKES(cents: number): string {
-  return (cents / 100).toLocaleString('en-KE', { style: 'currency', currency: 'KES' })
 }
 
 export function ImportPreview({

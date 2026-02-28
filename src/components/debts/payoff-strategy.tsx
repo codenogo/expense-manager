@@ -3,13 +3,10 @@
 import { useState } from 'react'
 import type { Tables } from '@/types/database'
 import { calculatePayoff, type DebtInput } from '@/lib/debt-calculator'
+import { formatKES } from '@/components/ui/currency'
 
 interface PayoffStrategyProps {
   debts: Tables<'debts'>[]
-}
-
-function formatKES(cents: number): string {
-  return (cents / 100).toLocaleString('en-KE', { style: 'currency', currency: 'KES' })
 }
 
 export function PayoffStrategy({ debts }: PayoffStrategyProps) {

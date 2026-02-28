@@ -132,8 +132,9 @@ export async function setBudget(formData: FormData): Promise<{ error?: string } 
 
 export async function deleteBudget(id: string): Promise<{ error?: string } | void> {
   const supabase = await createClient()
+  const householdId = await getHouseholdId()
 
-  const { error } = await supabase.from('budgets').delete().eq('id', id)
+  const { error } = await supabase.from('budgets').delete().eq('id', id).eq('household_id', householdId)
 
   if (error) return { error: error.message }
 

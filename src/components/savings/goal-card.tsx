@@ -1,12 +1,9 @@
 import Link from 'next/link'
 import type { Tables } from '@/types/database'
+import { formatKES } from '@/components/ui/currency'
 
 interface GoalCardProps {
   goal: Tables<'savings_goals'>
-}
-
-function formatKES(cents: number): string {
-  return (cents / 100).toLocaleString('en-KE', { style: 'currency', currency: 'KES' })
 }
 
 function getSavingsProgressColor(percentage: number): string {

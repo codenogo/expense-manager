@@ -87,6 +87,7 @@ export async function updateRule(
   }
 
   const supabase = await createClient()
+  const householdId = await getHouseholdId()
 
   const { error } = await supabase
     .from('categorization_rules')
@@ -97,6 +98,7 @@ export async function updateRule(
       priority: isNaN(priority) ? 0 : priority,
     })
     .eq('id', id)
+    .eq('household_id', householdId)
 
   if (error) return { error: error.message }
 
@@ -105,8 +107,9 @@ export async function updateRule(
 
 export async function deleteRule(id: string): Promise<{ error?: string } | void> {
   const supabase = await createClient()
+  const householdId = await getHouseholdId()
 
-  const { error } = await supabase.from('categorization_rules').delete().eq('id', id)
+  const { error } = await supabase.from('categorization_rules').delete().eq('id', id).eq('household_id', householdId)
 
   if (error) return { error: error.message }
 

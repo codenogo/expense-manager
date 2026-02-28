@@ -1,4 +1,5 @@
 import type { Tables } from '@/types/database'
+import { formatKES } from '@/components/ui/currency'
 
 interface DebtSummaryProps {
   debts: Tables<'debts'>[]
@@ -9,10 +10,6 @@ const TYPE_LABELS: Record<Tables<'debts'>['type'], string> = {
   sacco_loan: 'SACCO Loan',
   credit_card: 'Credit Card',
   informal: 'Informal',
-}
-
-function formatKES(cents: number): string {
-  return (cents / 100).toLocaleString('en-KE', { style: 'currency', currency: 'KES' })
 }
 
 export function DebtSummary({ debts }: DebtSummaryProps) {
