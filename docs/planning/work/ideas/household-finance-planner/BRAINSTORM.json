@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "topic": "End-to-end household finance planner with common pool income and expense management",
+  "slug": "household-finance-planner",
+  "timestamp": "2026-02-28T00:00:00Z",
+  "questionsAsked": [
+    "Who is this for — just your own household, or SaaS / open-source?",
+    "Do you want automatic bank sync (Plaid) or manual entry/CSV for MVP?",
+    "What's your preferred database and hosting approach?",
+    "What's the most important first capability?"
+  ],
+  "constraints": [
+    "Single household only — no multi-tenant, no billing",
+    "Manual entry + CSV import only (no bank API for MVP)",
+    "Supabase (Postgres + Auth + RLS) as backend",
+    "Existing stack: Next.js 16, React 19, Tailwind 4",
+    "All core features needed: budget, expenses, bills, debt, savings",
+    "Encrypt sensitive fields, RLS on all tables"
+  ],
+  "candidates": [
+    {
+      "name": "Monolith Dashboard",
+      "summary": "Full feature set as pages within the existing Next.js app. Supabase handles auth, DB, RLS. Server Components for reads, Server Actions for writes.",
+      "risks": [
+        "Scope creep — many features. Mitigate with phased delivery.",
+        "CSV import complexity varies by bank. Mitigate with configurable mapper."
+      ],
+      "mvp": [
+        "Supabase setup + auth + household creation",
+        "Account and transaction CRUD with categories",
+        "CSV import with column mapping",
+        "Monthly budget by category",
+        "Recurring bills tracker",
+        "Debt accounts + payoff projections",
+        "Savings goals + progress",
+        "Dashboard with monthly overview and trends"
+      ]
+    },
+    {
+      "name": "Local-First Hybrid",
+      "summary": "SQLite in browser (wa-sqlite/OPFS) for instant local reads/writes, syncing to Supabase Postgres for backup and cross-device access.",
+      "risks": [
+        "Sync complexity — conflict resolution for shared household edits",
+        "Browser storage limits and OPFS compatibility issues",
+        "Two database schemas to maintain"
+      ],
+      "mvp": [
+        "Same features as Option A plus sync layer",
+        "Offline transaction entry",
+        "CRDT or last-write-wins conflict resolution"
+      ]
+    },
+    {
+      "name": "API-First with Mobile Future",
+      "summary": "Separate tRPC/REST API layer on Supabase, Next.js as one client. Designed for future React Native mobile app.",
+      "risks": [
+        "YAGNI — mobile app may never materialize",
+        "Slower iteration due to extra abstraction",
+        "Duplicates Supabase PostgREST functionality"
+      ],
+      "mvp": [
+        "Same features as Option A but with API abstraction layer",
+        "tRPC or REST route definitions",
+        "Shared type package between API and frontend"
+      ]
+    }
+  ],
+  "recommendation": {
+    "primary": "Monolith Dashboard",
+    "backup": "Local-First Hybrid",
+    "rationale": "For a single-household private tool, simplicity wins. Next.js Server Components + Supabase gives auth, RLS, realtime, and Postgres with zero infra management. Ships faster, iterates faster. Architecture naturally supports adding Plaid or mobile later without rewrite."
+  }
+}
