@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "feature": "household-finance-planner",
+  "planNumber": "03",
+  "goal": "Add CSV import with column mapping and auto-categorization rules",
+  "tasks": [
+    {
+      "name": "CSV import engine with configurable column mapping",
+      "files": [
+        "src/app/(app)/import/page.tsx",
+        "src/lib/actions/import.ts",
+        "src/lib/csv-parser.ts",
+        "src/components/import/csv-upload.tsx",
+        "src/components/import/column-mapper.tsx",
+        "src/components/import/import-preview.tsx"
+      ],
+      "microSteps": [
+        "Write CSV parser utility: parse CSV string to rows, detect headers, handle common encodings",
+        "Write failing test for CSV parser (date formats, amount parsing, negative amounts)",
+        "Implement CSV parser to pass tests",
+        "Build CSV upload component: file input, drag-and-drop, parse on upload",
+        "Build column mapper: user maps CSV columns to transaction fields (date, amount, description, category)",
+        "Build import preview: show parsed transactions before committing",
+        "Write Server Action: bulkCreateTransactions with validation"
+      ],
+      "tdd": {
+        "required": true,
+        "failingVerify": ["npx vitest run src/lib/csv-parser.test.ts"],
+        "passingVerify": ["npx vitest run src/lib/csv-parser.test.ts"]
+      },
+      "action": "Build CSV import flow: upload → map columns → preview → confirm. CSV parser handles date format variations, positive/negative amounts, and header detection. Server Action bulk-inserts validated transactions. No bank-specific presets — user maps every import.",
+      "verify": ["npx vitest run src/lib/csv-parser.test.ts", "npx tsc --noEmit", "npm run build"]
+    },
+    {
+      "name": "Auto-categorization rules engine",
+      "files": [
+        "src/app/(app)/settings/rules/page.tsx",
+        "src/lib/actions/rules.ts",
+        "src/lib/categorizer.ts",
+        "src/components/settings/rule-form.tsx",
+        "src/components/settings/rule-list.tsx"
+      ],
+      "microSteps": [
+        "Write failing test: categorizer matches transaction description against rules (exact, contains, regex)",
+        "Implement categorizer: match payee/description against rules, return category_id or null",
+        "Write Server Actions: createRule, updateRule, deleteRule, getRules",
+        "Build rules list page under settings",
+        "Build rule form: match pattern, match type (contains/exact/starts-with), target category",
+        "Apply categorizer during CSV import and manual transaction creation",
+        "Verify rules auto-assign categories on new transactions"
+      ],
+      "tdd": {
+        "required": true,
+        "failingVerify": ["npx vitest run src/lib/categorizer.test.ts"],
+        "passingVerify": ["npx vitest run src/lib/categorizer.test.ts"]
+      },
+      "action": "Build auto-categorization rules: user defines patterns (contains/exact/starts-with) that map to categories. Applied during CSV import and manual entry. Rules stored in DB per household. Categorizer is a pure function tested independently.",
+      "verify": ["npx vitest run src/lib/categorizer.test.ts", "npx tsc --noEmit", "npm run build"],
+      "blockedBy": [0]
+    }
+  ],
+  "planVerify": ["npx vitest run", "npx tsc --noEmit", "npm run build"],
+  "commitMessage": "feat(import): add CSV import with column mapping and auto-categorization rules",
+  "timestamp": "2026-02-28T00:00:00Z"
+}

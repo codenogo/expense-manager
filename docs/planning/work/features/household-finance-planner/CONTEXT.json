@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "feature": "household-finance-planner",
+  "displayName": "Option A: Monolith Dashboard",
+  "timestamp": "2026-02-28T00:00:00Z",
+  "decisions": [
+    {
+      "area": "auth",
+      "decision": "Individual Supabase accounts with email invite links",
+      "rationale": "Enables per-member transaction attribution, RLS enforcement, and audit trails. Each household member gets their own login."
+    },
+    {
+      "area": "pool-model",
+      "decision": "Full common pool — all income is household income",
+      "rationale": "Simplest model. All income flows into a shared pool, all expenses drawn from it. No personal allowance complexity."
+    },
+    {
+      "area": "currency",
+      "decision": "KES (Kenya Shilling) only",
+      "rationale": "Single-currency simplifies formatting, validation, and storage. No conversion logic needed."
+    },
+    {
+      "area": "ui-style",
+      "decision": "Clean minimal — Monarch Money style",
+      "rationale": "Generous whitespace, one metric per card, calming colors. Friendlier for non-finance household members."
+    },
+    {
+      "area": "debt-tracking",
+      "decision": "All debts including informal (loans, credit cards, money owed to/from people)",
+      "rationale": "Covers formal debts (bank loans, SACCO, credit cards) plus informal debts (money owed to/from friends/family). Reflects real Kenyan household finance patterns."
+    },
+    {
+      "area": "savings",
+      "decision": "Goal-based savings with target amounts and deadlines",
+      "rationale": "Named goals (e.g., 'School fees - KES 200K by Jan') with progress tracking. More actionable than raw account balances."
+    },
+    {
+      "area": "categories",
+      "decision": "Fully custom — user defines all categories from scratch",
+      "rationale": "No preset categories. Household creates their own category hierarchy. Maximum flexibility."
+    },
+    {
+      "area": "database",
+      "decision": "Supabase (managed Postgres + Auth + RLS)",
+      "rationale": "Auth, RLS, realtime, and Postgres in one service. Free tier sufficient for single household. RLS enforces data isolation."
+    },
+    {
+      "area": "data-entry",
+      "decision": "Manual entry + CSV import only (no bank API for MVP)",
+      "rationale": "Zero cost, full privacy. Users enter transactions manually or import bank CSV exports. Plaid can be added later."
+    },
+    {
+      "area": "architecture",
+      "decision": "Next.js App Router monolith with Server Components and Server Actions",
+      "rationale": "All features as pages within one app. Server Components for data fetching, Server Actions for mutations. Simplest deployment (single Vercel project)."
+    }
+  ],
+  "constraints": [
+    "Single household only — no multi-tenant infrastructure",
+    "KES currency only — no multi-currency or conversion",
+    "Manual + CSV import only — no Plaid/bank API for MVP",
+    "Supabase free tier must be sufficient",
+    "Next.js 16 + React 19 + Tailwind 4 (existing stack)",
+    "All financial data behind Supabase RLS policies",
+    "No secrets or financial data in client-side bundles"
+  ],
+  "openQuestions": [
+    "CSV format mapping — which Kenyan banks' export formats to support first?",
+    "Notification strategy — email vs in-app for bill reminders?",
+    "Debt payoff visualization — simple progress bar or amortization schedule?"
+  ],
+  "relatedCode": [
+    "src/app/layout.tsx",
+    "src/app/page.tsx",
+    "src/app/globals.css"
+  ],
+  "dataModel": {
+    "coreTables": [
+      "households",
+      "profiles",
+      "accounts",
+      "transactions",
+      "categories",
+      "budgets",
+      "recurring_items",
+      "debts",
+      "savings_goals"
+    ],
+    "notes": "Single-entry bookkeeping for MVP. Debts table covers formal (loans, credit cards) and informal (person-to-person). Categories are fully user-defined with parent/child hierarchy."
+  }
+}

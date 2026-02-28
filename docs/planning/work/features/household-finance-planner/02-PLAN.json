@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 2,
+  "feature": "household-finance-planner",
+  "planNumber": "02",
+  "goal": "Build core data management — accounts, categories, and transactions with full CRUD",
+  "tasks": [
+    {
+      "name": "Account management CRUD",
+      "files": [
+        "src/app/(app)/accounts/page.tsx",
+        "src/app/(app)/accounts/new/page.tsx",
+        "src/app/(app)/accounts/[id]/page.tsx",
+        "src/lib/actions/accounts.ts",
+        "src/components/accounts/account-form.tsx",
+        "src/components/accounts/account-card.tsx",
+        "src/components/ui/currency.tsx"
+      ],
+      "microSteps": [
+        "Create KES currency formatter component (displays amounts as KES with commas)",
+        "Create account form component: name, type (checking/savings/credit/loan/cash/mpesa), initial balance",
+        "Write Server Actions: createAccount, updateAccount, deleteAccount, getAccounts",
+        "Build accounts list page showing all accounts grouped by type with balances",
+        "Build new account page with form",
+        "Build account detail page with edit/delete",
+        "Verify accounts CRUD works end to end"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "CRUD pages — verified by build + manual flow test"
+      },
+      "action": "Build accounts list, create, and detail pages. Server Actions for CRUD. KES currency formatter component. Account types: checking, savings, credit card, loan, cash, M-Pesa.",
+      "verify": ["npx tsc --noEmit", "npm run build"]
+    },
+    {
+      "name": "Category management with hierarchy",
+      "files": [
+        "src/app/(app)/categories/page.tsx",
+        "src/lib/actions/categories.ts",
+        "src/components/categories/category-form.tsx",
+        "src/components/categories/category-tree.tsx"
+      ],
+      "microSteps": [
+        "Write Server Actions: createCategory, updateCategory, deleteCategory, getCategories (tree structured)",
+        "Build category tree component rendering parent/child hierarchy",
+        "Build inline category form: name, parent (optional), icon/color (optional)",
+        "Build categories page with tree view and add/edit/delete inline",
+        "Verify category hierarchy displays correctly"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI + CRUD — verified by build + manual test"
+      },
+      "action": "Build category management page with tree view. Categories are fully user-defined with optional parent for hierarchy. Server Actions for CRUD. Delete should warn if transactions reference the category.",
+      "verify": ["npx tsc --noEmit", "npm run build"]
+    },
+    {
+      "name": "Transaction CRUD with categorization",
+      "files": [
+        "src/app/(app)/transactions/page.tsx",
+        "src/app/(app)/transactions/new/page.tsx",
+        "src/app/(app)/transactions/[id]/page.tsx",
+        "src/lib/actions/transactions.ts",
+        "src/components/transactions/transaction-form.tsx",
+        "src/components/transactions/transaction-list.tsx",
+        "src/components/transactions/transaction-filters.tsx"
+      ],
+      "microSteps": [
+        "Write Server Actions: createTransaction, updateTransaction, deleteTransaction, getTransactions (with filters)",
+        "Build transaction form: amount, date, type (income/expense), account, category, notes",
+        "Build transaction list component with date grouping and running totals",
+        "Build filter bar: date range, category, account, income/expense",
+        "Build transactions list page with filters",
+        "Build new transaction page and detail/edit page",
+        "Verify transaction creation updates account balance display"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "CRUD pages — verified by build + manual flow"
+      },
+      "action": "Build transaction list, create, and detail pages. Transactions have: amount (integer, smallest unit), date, type (income/expense), account, category, notes, created_by. Filter by date range, category, account, and type. Display grouped by date with running totals.",
+      "verify": ["npx tsc --noEmit", "npm run build"],
+      "blockedBy": [0, 1]
+    }
+  ],
+  "planVerify": ["npx tsc --noEmit", "npm run build"],
+  "commitMessage": "feat(core): add accounts, categories, and transactions CRUD",
+  "timestamp": "2026-02-28T00:00:00Z"
+}
