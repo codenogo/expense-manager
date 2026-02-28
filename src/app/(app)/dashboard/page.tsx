@@ -4,19 +4,22 @@ import { getHousehold } from '@/lib/actions/household'
 import { getDashboardData } from '@/lib/actions/dashboard'
 import { getRecurringItems } from '@/lib/actions/recurring'
 import { getCategories } from '@/lib/actions/categories'
+import { getMonthlyTrends } from '@/lib/actions/reports'
 import { signOut } from '@/lib/actions/auth'
 import { SummaryCards } from '@/components/dashboard/summary-cards'
 import { CategoryBreakdown } from '@/components/dashboard/category-breakdown'
 import { RecentTransactions } from '@/components/dashboard/recent-transactions'
 import { UpcomingBills } from '@/components/bills/upcoming-bills'
+import { SpendingTrends } from '@/components/dashboard/spending-trends'
+import { IncomeVsExpenses } from '@/components/dashboard/income-vs-expenses'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')
 
-  const [{ household, members: _members }, dashboardData, recurringItems, categories] =
-    await Promise.all([getHousehold(), getDashboardData(), getRecurringItems(), getCategories()])
+  const [{ household, members: _members }, dashboardData, recurringItems, categories, trends] =
+    await Promise.all([getHousehold(), getDashboardData(), getRecurringItems(), getCategories(), getMonthlyTrends()])
 
   if (!household) redirect('/onboarding')
 
@@ -42,6 +45,11 @@ export default async function DashboardPage() {
           totalExpenses={dashboardData.totalExpenses}
           net={dashboardData.net}
         />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SpendingTrends data={trends} />
+          <IncomeVsExpenses data={trends} />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CategoryBreakdown breakdown={dashboardData.categoryBreakdown} />
