@@ -12,52 +12,81 @@ import { RecentTransactions } from '@/components/dashboard/recent-transactions'
 import { UpcomingBills } from '@/components/bills/upcoming-bills'
 import { SpendingTrends } from '@/components/dashboard/spending-trends'
 import { IncomeVsExpenses } from '@/components/dashboard/income-vs-expenses'
+import { MemberContributions } from '@/components/dashboard/member-contributions'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')
 
-  const [{ household, members: _members }, dashboardData, recurringItems, categories, trends] =
-    await Promise.all([getHousehold(), getDashboardData(), getRecurringItems(), getCategories(), getMonthlyTrends()])
+  const now = new Date()
+  const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+  const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+
+  const [{ household, members }, dashboardData, recurringItems, categories, trends] =
+    await Promise.all([
+      getHousehold(),
+      getDashboardData(),
+      getRecurringItems(),
+      getCategories(),
+      getMonthlyTrends(),
+    ])
 
   if (!household) redirect('/onboarding')
 
+  const { data: memberTxsRaw } = await supabase
+    .from('transactions')
+    .select('created_by, type, amount')
+    .eq('household_id', household.id)
+    .gte('date', startDate)
+    .lte('date', endDate)
+
+  const memberTxs = (memberTxsRaw ?? []).map((tx) => ({
+    created_by: tx.created_by ?? '',
+    type: tx.type,
+    amount: tx.amount,
+  }))
+
+  const memberList = members.map((m) => ({
+    id: m.id,
+    full_name: m.full_name,
+  }))
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">{household.name}</h1>
-            <p className="text-xs text-slate-500">Household Finance Planner</p>
-          </div>
-          <form action={signOut}>
-            <button type="submit" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
-              Sign out
-            </button>
-          </form>
-        </div>
-      </header>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-slate-900">{household.name} Dashboard</h1>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+          >
+            Sign out
+          </button>
+        </form>
+      </div>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        <SummaryCards
-          totalIncome={dashboardData.totalIncome}
-          totalExpenses={dashboardData.totalExpenses}
-          net={dashboardData.net}
-        />
+      <SummaryCards
+        totalIncome={dashboardData.totalIncome}
+        totalExpenses={dashboardData.totalExpenses}
+        net={dashboardData.net}
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SpendingTrends data={trends} />
-          <IncomeVsExpenses data={trends} />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SpendingTrends data={trends} />
+        <IncomeVsExpenses data={trends} />
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <CategoryBreakdown breakdown={dashboardData.categoryBreakdown} />
-          <UpcomingBills items={recurringItems} categories={categories} />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <CategoryBreakdown breakdown={dashboardData.categoryBreakdown} />
+        <UpcomingBills items={recurringItems} categories={categories} />
+      </div>
 
-        <RecentTransactions transactions={dashboardData.recentTransactions} />
-      </main>
+      <MemberContributions members={memberList} transactions={memberTxs} />
+
+      <RecentTransactions transactions={dashboardData.recentTransactions} />
     </div>
   )
 }
