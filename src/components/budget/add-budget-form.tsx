@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState } from 'react'
 import { setBudget } from '@/lib/actions/budgets'
 import type { Tables } from '@/types/database'
 

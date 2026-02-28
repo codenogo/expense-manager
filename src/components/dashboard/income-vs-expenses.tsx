@@ -4,12 +4,6 @@ interface IncomeVsExpensesProps {
   data: { month: string; label: string; income: number; expenses: number }[]
 }
 
-function formatCompact(cents: number): string {
-  const amount = cents / 100
-  if (amount >= 1000) return `${(amount / 1000).toFixed(0)}K`
-  return amount.toFixed(0)
-}
-
 export function IncomeVsExpenses({ data }: IncomeVsExpensesProps) {
   const maxVal = Math.max(...data.flatMap(d => [d.income, d.expenses]), 1)
 

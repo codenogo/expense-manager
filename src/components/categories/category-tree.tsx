@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { deleteCategory } from '@/lib/actions/categories'
 import type { Tables } from '@/types/database'
 
 interface CategoryNodeProps {
   category: Tables<'categories'>
-  children: Tables<'categories'>[]
+  childCategories: Tables<'categories'>[]
   allCategories: Tables<'categories'>[]
   onEdit: (cat: Tables<'categories'>) => void
   onDelete: (id: string) => void
@@ -15,14 +14,14 @@ interface CategoryNodeProps {
 
 function CategoryNode({
   category,
-  children,
+  childCategories,
   allCategories,
   onEdit,
   onDelete,
   depth,
 }: CategoryNodeProps) {
   const [expanded, setExpanded] = useState(true)
-  const hasChildren = children.length > 0
+  const hasChildren = childCategories.length > 0
 
   return (
     <div>
@@ -76,13 +75,13 @@ function CategoryNode({
 
       {hasChildren && expanded && (
         <div className="border-l-2 border-gray-200 ml-5">
-          {children.map((child) => {
+          {childCategories.map((child) => {
             const grandChildren = allCategories.filter((c) => c.parent_id === child.id)
             return (
               <CategoryNode
                 key={child.id}
                 category={child}
-                children={grandChildren}
+                childCategories={grandChildren}
                 allCategories={allCategories}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -116,12 +115,12 @@ export function CategoryTree({ categories, onEdit, onDelete }: CategoryTreeProps
   return (
     <div className="divide-y divide-slate-100">
       {rootCategories.map((cat) => {
-        const children = categories.filter((c) => c.parent_id === cat.id)
+        const catChildren = categories.filter((c) => c.parent_id === cat.id)
         return (
           <CategoryNode
             key={cat.id}
             category={cat}
-            children={children}
+            childCategories={catChildren}
             allCategories={categories}
             onEdit={onEdit}
             onDelete={onDelete}

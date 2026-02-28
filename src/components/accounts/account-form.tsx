@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { createAccount, updateAccount } from '@/lib/actions/accounts'
 import type { Tables } from '@/types/database'
 
@@ -89,12 +90,12 @@ export function AccountForm({ account }: AccountFormProps) {
             >
               {isEdit ? 'Save Changes' : 'Create Account'}
             </button>
-            <a
+            <Link
               href="/accounts"
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Cancel
-            </a>
+            </Link>
           </div>
         </form>
       </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { createTransaction, updateTransaction } from '@/lib/actions/transactions'
 import type { Tables } from '@/types/database'
 
@@ -144,12 +145,12 @@ export function TransactionForm({ accounts, categories, transaction }: Transacti
             >
               {isEdit ? 'Save Changes' : 'Add Transaction'}
             </button>
-            <a
+            <Link
               href="/transactions"
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Cancel
-            </a>
+            </Link>
           </div>
         </form>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { Tables } from '@/types/database'
 
 interface DebtFormProps {
@@ -142,12 +143,12 @@ export function DebtForm({ debt, action }: DebtFormProps) {
             >
               {debt ? 'Save Changes' : 'Create Debt'}
             </button>
-            <a
+            <Link
               href="/debts"
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Cancel
-            </a>
+            </Link>
           </div>
         </form>
       </div>

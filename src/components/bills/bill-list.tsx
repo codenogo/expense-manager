@@ -148,12 +148,12 @@ export function BillList({ items, accounts, categories }: BillListProps) {
     return (
       <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
         <p className="text-slate-500 text-sm mb-4">No bills yet. Add your first bill to get started.</p>
-        <a
+        <Link
           href="/bills/new"
           className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
         >
           Add Bill
-        </a>
+        </Link>
       </div>
     )
   }

@@ -56,14 +56,9 @@ export function calculatePayoff(
       s.totalInterest += monthlyInterest
     }
 
-    // 2. Pay minimums on all debts (collect freed minimums from paid-off debts)
-    let freedMinimums = 0
+    // 2. Pay minimums on all debts
     for (const s of state) {
-      if (s.paidOff) {
-        // Freed minimum rolls over
-        freedMinimums += s.minPayment
-        continue
-      }
+      if (s.paidOff) continue
       const payment = Math.min(s.minPayment, s.balance)
       s.balance -= payment
       s.totalPaid += payment
@@ -71,7 +66,6 @@ export function calculatePayoff(
         s.balance = 0
         s.paidOff = true
         s.monthsPaidOff = month
-        freedMinimums += s.minPayment
       }
     }
 

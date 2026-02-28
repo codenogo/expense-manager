@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { createRecurring, updateRecurring } from '@/lib/actions/recurring'
 import type { Tables } from '@/types/database'
 
@@ -142,12 +143,12 @@ export function BillForm({ accounts, categories, item }: BillFormProps) {
             >
               {isEdit ? 'Save Changes' : 'Create Bill'}
             </button>
-            <a
+            <Link
               href="/bills"
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
             >
               Cancel
-            </a>
+            </Link>
           </div>
         </form>
       </div>

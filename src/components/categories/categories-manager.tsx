@@ -14,7 +14,7 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
   const [showForm, setShowForm] = useState(false)
   const [editCategory, setEditCategory] = useState<Tables<'categories'> | undefined>()
   const [deleteError, setDeleteError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
 
   const handleEdit = useCallback((cat: Tables<'categories'>) => {
     setEditCategory(cat)

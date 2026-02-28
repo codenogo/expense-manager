@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { CSVUpload } from './csv-upload'
 import { ColumnMapper, type ColumnMapping } from './column-mapper'
 import { ImportPreview } from './import-preview'
@@ -27,7 +28,7 @@ export function ImportWizard({ accounts, categories, rules }: ImportWizardProps)
   const [step, setStep] = useState<Step>('upload')
   const [parsedCSV, setParsedCSV] = useState<ParsedCSV | null>(null)
   const [fileName, setFileName] = useState('')
-  const [mapping, setMapping] = useState<ColumnMapping | null>(null)
+  const [, setMapping] = useState<ColumnMapping | null>(null)
   const [transactions, setTransactions] = useState<MappedTransaction[]>([])
   const [importedCount, setImportedCount] = useState(0)
 
@@ -89,12 +90,12 @@ export function ImportWizard({ accounts, categories, rules }: ImportWizardProps)
           Successfully imported <span className="font-medium text-slate-700">{importedCount}</span> transactions.
         </p>
         <div className="flex justify-center gap-3">
-          <a
+          <Link
             href="/transactions"
             className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
           >
             View Transactions
-          </a>
+          </Link>
           <button
             onClick={() => { setStep('upload'); setParsedCSV(null); setMapping(null); setTransactions([]) }}
             className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
