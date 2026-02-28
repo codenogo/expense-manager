@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { bulkCreateTransactions, type ImportRow } from '@/lib/actions/import'
+import { categorize, type CategorizationRule } from '@/lib/categorizer'
 import type { Tables } from '@/types/database'
 
 interface MappedTransaction {
@@ -15,6 +16,7 @@ interface ImportPreviewProps {
   transactions: MappedTransaction[]
   accounts: Tables<'accounts'>[]
   categories: Tables<'categories'>[]
+  rules: CategorizationRule[]
   onBack: () => void
   onDone: (imported: number) => void
 }
@@ -27,6 +29,7 @@ export function ImportPreview({
   transactions,
   accounts,
   categories,
+  rules,
   onBack,
   onDone,
 }: ImportPreviewProps) {
@@ -47,7 +50,7 @@ export function ImportPreview({
       amount: tx.amount,
       type: tx.type,
       accountId,
-      categoryId: defaultCategoryId || null,
+      categoryId: categorize(tx.notes ?? '', rules) ?? (defaultCategoryId || null),
       notes: tx.notes,
     }))
 

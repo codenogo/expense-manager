@@ -6,6 +6,7 @@ import { ColumnMapper, type ColumnMapping } from './column-mapper'
 import { ImportPreview } from './import-preview'
 import { detectHeaders, parseAmount, parseDate, type ParsedCSV } from '@/lib/csv-parser'
 import type { Tables } from '@/types/database'
+import type { CategorizationRule } from '@/lib/categorizer'
 
 type Step = 'upload' | 'map' | 'preview' | 'done'
 
@@ -19,9 +20,10 @@ interface MappedTransaction {
 interface ImportWizardProps {
   accounts: Tables<'accounts'>[]
   categories: Tables<'categories'>[]
+  rules: CategorizationRule[]
 }
 
-export function ImportWizard({ accounts, categories }: ImportWizardProps) {
+export function ImportWizard({ accounts, categories, rules }: ImportWizardProps) {
   const [step, setStep] = useState<Step>('upload')
   const [parsedCSV, setParsedCSV] = useState<ParsedCSV | null>(null)
   const [fileName, setFileName] = useState('')
@@ -143,6 +145,7 @@ export function ImportWizard({ accounts, categories }: ImportWizardProps) {
           transactions={transactions}
           accounts={accounts}
           categories={categories}
+          rules={rules}
           onBack={() => setStep('map')}
           onDone={handleDone}
         />

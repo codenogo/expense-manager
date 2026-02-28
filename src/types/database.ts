@@ -352,6 +352,44 @@ export interface Database {
           }
         ]
       }
+      categorization_rules: {
+        Row: {
+          id: string
+          household_id: string
+          match_pattern: string
+          match_type: 'contains' | 'exact' | 'starts_with'
+          category_id: string
+          priority: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          household_id: string
+          match_pattern: string
+          match_type: 'contains' | 'exact' | 'starts_with'
+          category_id: string
+          priority?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          household_id?: string
+          match_pattern?: string
+          match_type?: 'contains' | 'exact' | 'starts_with'
+          category_id?: string
+          priority?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'categorization_rules_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

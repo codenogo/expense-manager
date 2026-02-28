@@ -1,10 +1,15 @@
 import Link from 'next/link'
 import { getAccounts } from '@/lib/actions/accounts'
 import { getCategories } from '@/lib/actions/categories'
+import { getRules } from '@/lib/actions/rules'
 import { ImportWizard } from '@/components/import/import-wizard'
 
 export default async function ImportPage() {
-  const [accounts, categories] = await Promise.all([getAccounts(), getCategories()])
+  const [accounts, categories, rules] = await Promise.all([
+    getAccounts(),
+    getCategories(),
+    getRules(),
+  ])
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -24,7 +29,7 @@ export default async function ImportPage() {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <ImportWizard accounts={accounts} categories={categories} />
+          <ImportWizard accounts={accounts} categories={categories} rules={rules} />
         </div>
       </main>
     </div>
