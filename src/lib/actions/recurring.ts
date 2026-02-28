@@ -1,0 +1,186 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import type { Tables } from '@/types/database'
+
+async function getHouseholdId(): Promise<string> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('household_id')
+    .eq('id', user.id)
+    .single()
+  if (!profile?.household_id) redirect('/onboarding')
+  return profile.household_id
+}
+
+export async function getRecurringItems(): Promise<Tables<'recurring_items'>[]> {
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const { data, error } = await supabase
+    .from('recurring_items')
+    .select('*')
+    .eq('household_id', householdId)
+    .order('next_due_date', { ascending: true })
+
+  if (error) throw new Error(error.message)
+
+  return data ?? []
+}
+
+export async function createRecurring(formData: FormData): Promise<void> {
+  const name = formData.get('name') as string
+  const amountKES = parseFloat(formData.get('amount') as string) || 0
+  const amountCents = Math.round(amountKES * 100)
+  const frequency = formData.get('frequency') as Tables<'recurring_items'>['frequency']
+  const nextDueDate = formData.get('next_due_date') as string
+  const categoryId = (formData.get('category_id') as string) || null
+  const accountId = (formData.get('account_id') as string) || null
+
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const { error } = await supabase.from('recurring_items').insert({
+    household_id: householdId,
+    name,
+    amount: amountCents,
+    frequency,
+    next_due_date: nextDueDate,
+    category_id: categoryId,
+    account_id: accountId,
+  })
+
+  if (error) throw new Error(error.message)
+
+  redirect('/bills')
+}
+
+export async function updateRecurring(id: string, formData: FormData): Promise<void> {
+  const name = formData.get('name') as string
+  const amountKES = parseFloat(formData.get('amount') as string) || 0
+  const amountCents = Math.round(amountKES * 100)
+  const frequency = formData.get('frequency') as Tables<'recurring_items'>['frequency']
+  const nextDueDate = formData.get('next_due_date') as string
+  const categoryId = (formData.get('category_id') as string) || null
+  const accountId = (formData.get('account_id') as string) || null
+
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const { error } = await supabase
+    .from('recurring_items')
+    .update({
+      name,
+      amount: amountCents,
+      frequency,
+      next_due_date: nextDueDate,
+      category_id: categoryId,
+      account_id: accountId,
+    })
+    .eq('id', id)
+    .eq('household_id', householdId)
+
+  if (error) throw new Error(error.message)
+
+  redirect('/bills')
+}
+
+export async function deleteRecurring(id: string): Promise<void> {
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const { error } = await supabase
+    .from('recurring_items')
+    .delete()
+    .eq('id', id)
+    .eq('household_id', householdId)
+
+  if (error) throw new Error(error.message)
+
+  redirect('/bills')
+}
+
+export async function markPaid(id: string): Promise<void> {
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+
+  const { data: item, error: fetchError } = await supabase
+    .from('recurring_items')
+    .select('*')
+    .eq('id', id)
+    .eq('household_id', householdId)
+    .single()
+
+  if (fetchError || !item) throw new Error(fetchError?.message ?? 'Recurring item not found')
+
+  const today = new Date().toISOString().split('T')[0]
+
+  // Only create a transaction if an account is linked
+  if (item.account_id) {
+    const { error: txError } = await supabase.from('transactions').insert({
+      household_id: householdId,
+      account_id: item.account_id,
+      category_id: item.category_id,
+      amount: item.amount,
+      type: 'expense',
+      date: today,
+      notes: `Recurring: ${item.name}`,
+      created_by: user.id,
+    })
+
+    if (txError) throw new Error(txError.message)
+
+    const { data: account, error: accountError } = await supabase
+      .from('accounts')
+      .select('balance')
+      .eq('id', item.account_id)
+      .eq('household_id', householdId)
+      .single()
+
+    if (accountError || !account) throw new Error(accountError?.message ?? 'Account not found')
+
+    const newBalance = account.balance - item.amount
+
+    const { error: balanceError } = await supabase
+      .from('accounts')
+      .update({ balance: newBalance })
+      .eq('id', item.account_id)
+      .eq('household_id', householdId)
+
+    if (balanceError) throw new Error(balanceError.message)
+  }
+
+  // Advance next_due_date based on frequency
+  const dueDate = new Date(item.next_due_date)
+  if (item.frequency === 'weekly') {
+    dueDate.setDate(dueDate.getDate() + 7)
+  } else if (item.frequency === 'monthly') {
+    dueDate.setMonth(dueDate.getMonth() + 1)
+  } else if (item.frequency === 'yearly') {
+    dueDate.setFullYear(dueDate.getFullYear() + 1)
+  }
+
+  const newDueDate = dueDate.toISOString().split('T')[0]
+
+  const { error: updateError } = await supabase
+    .from('recurring_items')
+    .update({ next_due_date: newDueDate })
+    .eq('id', id)
+    .eq('household_id', householdId)
+
+  if (updateError) throw new Error(updateError.message)
+
+  revalidatePath('/bills')
+}
