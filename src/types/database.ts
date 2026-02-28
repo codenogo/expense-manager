@@ -22,11 +22,12 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       profiles: {
         Row: {
           id: string
-          household_id: string
+          household_id: string | null
           full_name: string
           role: 'admin' | 'member'
           created_at: string
@@ -34,20 +35,29 @@ export interface Database {
         }
         Insert: {
           id: string
-          household_id: string
+          household_id?: string | null
           full_name: string
-          role: 'admin' | 'member'
+          role?: 'admin' | 'member'
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
-          household_id?: string
+          household_id?: string | null
           full_name?: string
           role?: 'admin' | 'member'
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
       accounts: {
         Row: {
@@ -77,6 +87,15 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'accounts_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
       categories: {
         Row: {
@@ -106,6 +125,15 @@ export interface Database {
           color?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'categories_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
       transactions: {
         Row: {
@@ -144,6 +172,15 @@ export interface Database {
           created_by?: string
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'transactions_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
       budgets: {
         Row: {
@@ -170,6 +207,15 @@ export interface Database {
           amount?: number
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'budgets_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
       recurring_items: {
         Row: {
@@ -205,6 +251,15 @@ export interface Database {
           account_id?: string | null
           created_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'recurring_items_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
       debts: {
         Row: {
@@ -243,6 +298,15 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'debts_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
       savings_goals: {
         Row: {
@@ -278,6 +342,15 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: 'savings_goals_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
       }
     }
     Views: {
