@@ -25,9 +25,6 @@ CREATE POLICY "Users can update household notifications"
     SELECT household_id FROM profiles WHERE id = auth.uid()
   ));
 
--- Service role can insert (for the nightly job)
-CREATE POLICY "Service role can insert notifications"
-  ON notifications FOR INSERT
-  WITH CHECK (true);
+-- No INSERT policy needed — the nightly Edge Function uses service_role key which bypasses RLS
 
 CREATE INDEX idx_notifications_household_read ON notifications(household_id, read, created_at DESC);

@@ -27,6 +27,10 @@ export function NotificationBell({ householdId }: { householdId: string }) {
     getUnreadCount().then(setUnreadCount)
   }, [])
 
+  // Track open state in a ref so Realtime callback doesn't re-subscribe on toggle
+  const openRef = useRef(open)
+  openRef.current = open
+
   // Subscribe to Realtime for live updates
   useEffect(() => {
     const supabase = createClient()
@@ -41,9 +45,8 @@ export function NotificationBell({ householdId }: { householdId: string }) {
           filter: `household_id=eq.${householdId}`,
         },
         () => {
-          // Refresh count on new notification
           getUnreadCount().then(setUnreadCount)
-          if (open) {
+          if (openRef.current) {
             getNotifications().then((data) => setNotifications(data as Notification[]))
           }
         }
@@ -53,7 +56,7 @@ export function NotificationBell({ householdId }: { householdId: string }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [householdId, open])
+  }, [householdId])
 
   // Close dropdown on outside click
   useEffect(() => {
