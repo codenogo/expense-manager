@@ -1,20 +1,7 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-  if (!profile?.household_id) redirect('/onboarding')
-  return profile.household_id
-}
+import { getHouseholdId } from '@/lib/auth'
 
 export interface MonthlyTrend {
   month: string  // YYYY-MM

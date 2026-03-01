@@ -3,22 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getHouseholdId, getAuthContext } from '@/lib/auth'
 import type { Tables } from '@/types/database'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-  if (!profile?.household_id) redirect('/onboarding')
-  return profile.household_id
-}
 
 export async function getGoals(): Promise<Tables<'savings_goals'>[]> {
   const supabase = await createClient()
@@ -123,10 +109,7 @@ export async function addContribution(id: string, formData: FormData): Promise<v
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  const { user } = await getAuthContext()
 
   const { data: goal, error: goalError } = await supabase
     .from('savings_goals')

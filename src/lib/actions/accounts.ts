@@ -2,32 +2,8 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getHouseholdId } from '@/lib/auth'
 import type { Tables } from '@/types/database'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) {
-    redirect('/sign-in')
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !profile?.household_id) {
-    redirect('/onboarding')
-  }
-
-  return profile.household_id
-}
 
 export async function getAccounts(): Promise<Tables<'accounts'>[]> {
   const supabase = await createClient()

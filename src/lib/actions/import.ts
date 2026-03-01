@@ -1,23 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-  if (!profile?.household_id) redirect('/onboarding')
-  return profile.household_id
-}
+import { getHouseholdId, getAuthContext } from '@/lib/auth'
 
 export interface ImportRow {
   date: string
@@ -37,10 +22,7 @@ export async function bulkCreateTransactions(
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  const { user } = await getAuthContext()
 
   // Validate all rows have required fields
   for (const row of rows) {

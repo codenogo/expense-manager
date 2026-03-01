@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 2,
+  "feature": "progressive-enhancement",
+  "planNumber": "04",
+  "goal": "Add transaction search with pg_trgm extension, GIN index, server action, and search UI",
+  "tasks": [
+    {
+      "name": "Create pg_trgm migration with GIN index",
+      "files": [
+        "supabase/migrations/00006_add_pg_trgm_search.sql"
+      ],
+      "microSteps": [
+        "Create migration file that enables pg_trgm extension",
+        "Add GIN index on transactions.notes using gin_trgm_ops",
+        "Add GIN index on transactions.description if column exists",
+        "Test migration applies cleanly"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "SQL migration — verified via supabase db push or manual apply."
+      },
+      "action": "Create a Supabase migration that enables the pg_trgm extension and adds a GIN index on transactions.notes for fast fuzzy text search. Use CREATE EXTENSION IF NOT EXISTS and CREATE INDEX IF NOT EXISTS for idempotency.",
+      "verify": [
+        "cat supabase/migrations/00006_add_pg_trgm_search.sql"
+      ]
+    },
+    {
+      "name": "Add searchTransactions server action",
+      "files": [
+        "src/lib/actions/transactions.ts"
+      ],
+      "microSteps": [
+        "Add searchTransactions(query: string) function to transactions.ts",
+        "Use Supabase .ilike() or .textSearch() with pg_trgm for fuzzy matching on notes",
+        "Scope by household_id via getHouseholdId()",
+        "Return results ordered by similarity score then date",
+        "Limit to 50 results"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Requires live Supabase with pg_trgm extension — integration test. Verified via type check."
+      },
+      "action": "Add a new exported async function searchTransactions(query: string) to transactions.ts. Uses getHouseholdId() from shared auth, queries transactions with .ilike('notes', `%${query}%`) scoped to household, returns up to 50 results ordered by date descending.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20"
+      ],
+      "blockedBy": [0]
+    },
+    {
+      "name": "Add search UI to transactions page",
+      "files": [
+        "src/components/transactions/transaction-search.tsx",
+        "src/app/(app)/transactions/page.tsx"
+      ],
+      "microSteps": [
+        "Create transaction-search.tsx as 'use client' component with search input",
+        "Debounce input (300ms), call searchTransactions server action on change",
+        "Display search results inline, replacing the main transaction list when query is active",
+        "Add clear button to reset search",
+        "Integrate search component into transactions/page.tsx above the transaction list"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component — verified via build + manual testing."
+      },
+      "action": "Create a search bar component for the transactions page. 'use client' component with debounced input that calls searchTransactions(). Displays results inline. Add to transactions/page.tsx above the existing transaction list.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+        "npm run build 2>&1 | tail -20"
+      ],
+      "blockedBy": [1]
+    }
+  ],
+  "planVerify": [
+    "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+    "npm run build 2>&1 | tail -20"
+  ],
+  "commitMessage": "feat(search): add pg_trgm transaction search with GIN index and search UI",
+  "timestamp": "2026-03-01T15:00:00Z"
+}
