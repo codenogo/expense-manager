@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { getDebt, updateDebt, deleteDebt, recordPayment } from '@/lib/actions/debts'
+import { getDebt, updateDebt, recordPayment } from '@/lib/actions/debts'
 import { getAccounts } from '@/lib/actions/accounts'
 import { DebtForm } from '@/components/debts/debt-form'
+import { DeleteDebtButton } from '@/components/debts/delete-debt-button'
 import { Currency } from '@/components/ui/currency'
 
 interface DebtDetailPageProps {
@@ -13,7 +14,6 @@ export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
   const [debt, accounts] = await Promise.all([getDebt(id), getAccounts()])
 
   const updateWithId = updateDebt.bind(null, id)
-  const deleteWithId = deleteDebt.bind(null, id)
   const recordPaymentWithId = recordPayment.bind(null, id)
 
   return (
@@ -102,21 +102,7 @@ export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
             <p className="text-sm text-slate-500 mb-4">
               Deleting this debt is permanent and cannot be undone.
             </p>
-            <form
-              action={deleteWithId}
-              onSubmit={(e) => {
-                if (!confirm(`Delete "${debt.name}"? This cannot be undone.`)) {
-                  e.preventDefault()
-                }
-              }}
-            >
-              <button
-                type="submit"
-                className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-              >
-                Delete Debt
-              </button>
-            </form>
+            <DeleteDebtButton id={id} name={debt.name} />
           </div>
         </div>
       </main>

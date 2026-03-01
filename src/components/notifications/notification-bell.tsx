@@ -21,7 +21,9 @@ export function NotificationBell({ householdId }: { householdId: string }) {
 
   // Track open state in a ref so Realtime callback doesn't re-subscribe on toggle
   const openRef = useRef(open)
-  openRef.current = open
+  useEffect(() => {
+    openRef.current = open
+  }, [open])
 
   // Subscribe to Realtime for live updates
   useEffect(() => {

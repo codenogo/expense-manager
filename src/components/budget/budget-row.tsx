@@ -1,7 +1,10 @@
 'use client'
 
+import { toast } from 'sonner'
 import type { BudgetWithSpent } from '@/lib/actions/budgets'
 import { deleteBudget } from '@/lib/actions/budgets'
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { ProgressBar } from '@/components/ui/progress-bar'
 import { formatKES } from '@/components/ui/currency'
 
@@ -13,11 +16,20 @@ interface BudgetRowProps {
 export function BudgetRow({ budget, onDelete }: BudgetRowProps) {
   const remaining = budget.amount - budget.spent
   const isOver = remaining < 0
+  const { confirm, dialogProps } = useConfirmDialog()
 
   async function handleDelete() {
+    const ok = await confirm({
+      title: `Remove ${budget.category_name} budget?`,
+      description: 'This will remove the budget for this category.',
+      confirmLabel: 'Remove',
+      variant: 'danger',
+    })
+    if (!ok) return
+
     const result = await deleteBudget(budget.id)
     if (result?.error) {
-      alert(result.error)
+      toast.error(result.error)
       return
     }
     onDelete?.(budget.id)
@@ -44,6 +56,7 @@ export function BudgetRow({ budget, onDelete }: BudgetRowProps) {
           {isOver ? `${formatKES(Math.abs(remaining))} over` : `${formatKES(remaining)} left`}
         </span>
       </div>
+      <ConfirmDialog {...dialogProps} />
     </div>
   )
 }

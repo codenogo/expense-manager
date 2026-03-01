@@ -14,8 +14,8 @@ export function IncomeVsExpenses({ data }: IncomeVsExpensesProps) {
         data={data}
         xKey="label"
         bars={[
-          { key: 'income', color: '#10b981', name: 'Income' },
-          { key: 'expenses', color: '#f87171', name: 'Expenses' },
+          { key: 'income', color: '#2D8659', name: 'Income' },
+          { key: 'expenses', color: '#C4663A', name: 'Expenses' },
         ]}
         height={240}
       />

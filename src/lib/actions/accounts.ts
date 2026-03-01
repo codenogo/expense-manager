@@ -71,11 +71,11 @@ export async function createAccount(formData: FormData): Promise<void> {
   })
 
   if (error) {
-    throw new Error(error.message)
+    redirect('/accounts?error=Failed+to+create+account')
   }
 
   updateTag(`accounts-${householdId}`)
-  redirect('/accounts')
+  redirect('/accounts?toast=Account+created')
 }
 
 export async function updateAccount(id: string, formData: FormData): Promise<void> {
@@ -94,11 +94,11 @@ export async function updateAccount(id: string, formData: FormData): Promise<voi
     .eq('household_id', householdId)
 
   if (error) {
-    throw new Error(error.message)
+    redirect('/accounts?error=Failed+to+update+account')
   }
 
   updateTag(`accounts-${householdId}`)
-  redirect('/accounts')
+  redirect('/accounts?toast=Account+updated')
 }
 
 export async function deleteAccount(id: string): Promise<void> {
@@ -112,9 +112,9 @@ export async function deleteAccount(id: string): Promise<void> {
     .eq('household_id', householdId)
 
   if (error) {
-    throw new Error(error.message)
+    redirect('/accounts?error=Failed+to+delete+account')
   }
 
   updateTag(`accounts-${householdId}`)
-  redirect('/accounts')
+  redirect('/accounts?toast=Account+deleted')
 }

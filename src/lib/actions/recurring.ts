@@ -49,10 +49,12 @@ export async function createRecurring(formData: FormData): Promise<void> {
     account_id: accountId,
   })
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/bills?error=Failed+to+create+bill')
+  }
 
   updateTag(`recurring-${householdId}`)
-  redirect('/bills')
+  redirect('/bills?toast=Bill+created')
 }
 
 export async function updateRecurring(id: string, formData: FormData): Promise<void> {
@@ -80,10 +82,12 @@ export async function updateRecurring(id: string, formData: FormData): Promise<v
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/bills?error=Failed+to+update+bill')
+  }
 
   updateTag(`recurring-${householdId}`)
-  redirect('/bills')
+  redirect('/bills?toast=Bill+updated')
 }
 
 export async function deleteRecurring(id: string): Promise<void> {
@@ -96,10 +100,12 @@ export async function deleteRecurring(id: string): Promise<void> {
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/bills?error=Failed+to+delete+bill')
+  }
 
   updateTag(`recurring-${householdId}`)
-  redirect('/bills')
+  redirect('/bills?toast=Bill+deleted')
 }
 
 export async function markPaid(id: string): Promise<void> {

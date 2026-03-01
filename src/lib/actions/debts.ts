@@ -61,9 +61,11 @@ export async function createDebt(formData: FormData): Promise<void> {
     owed_to: owedTo,
   })
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/debts?error=Failed+to+create+debt')
+  }
 
-  redirect('/debts')
+  redirect('/debts?toast=Debt+created')
 }
 
 export async function updateDebt(id: string, formData: FormData): Promise<void> {
@@ -92,9 +94,11 @@ export async function updateDebt(id: string, formData: FormData): Promise<void> 
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/debts?error=Failed+to+update+debt')
+  }
 
-  redirect('/debts')
+  redirect('/debts?toast=Debt+updated')
 }
 
 export async function deleteDebt(id: string): Promise<void> {
@@ -107,9 +111,11 @@ export async function deleteDebt(id: string): Promise<void> {
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/debts?error=Failed+to+delete+debt')
+  }
 
-  redirect('/debts')
+  redirect('/debts?toast=Debt+deleted')
 }
 
 export async function recordPayment(id: string, formData: FormData): Promise<void> {

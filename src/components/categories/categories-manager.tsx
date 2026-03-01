@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useTransition, useCallback } from 'react'
+import { toast } from 'sonner'
 import { deleteCategory } from '@/lib/actions/categories'
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { CategoryTree } from './category-tree'
 import { CategoryForm } from './category-form'
 import type { Tables } from '@/types/database'
@@ -13,24 +16,31 @@ interface CategoriesManagerProps {
 export function CategoriesManager({ initialCategories }: CategoriesManagerProps) {
   const [showForm, setShowForm] = useState(false)
   const [editCategory, setEditCategory] = useState<Tables<'categories'> | undefined>()
-  const [deleteError, setDeleteError] = useState<string | null>(null)
   const [, startTransition] = useTransition()
+  const { confirm, dialogProps } = useConfirmDialog()
 
   const handleEdit = useCallback((cat: Tables<'categories'>) => {
     setEditCategory(cat)
     setShowForm(true)
-    setDeleteError(null)
   }, [])
 
-  const handleDelete = useCallback((id: string) => {
-    setDeleteError(null)
+  const handleDelete = useCallback(async (id: string) => {
+    const cat = initialCategories.find((c) => c.id === id)
+    const ok = await confirm({
+      title: `Delete "${cat?.name ?? 'category'}"?`,
+      description: 'This action cannot be undone. Transactions using this category will become uncategorized.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+
     startTransition(async () => {
       const result = await deleteCategory(id)
       if (result?.error) {
-        setDeleteError(result.error)
+        toast.error(result.error)
       }
     })
-  }, [])
+  }, [confirm, initialCategories])
 
   const handleClose = useCallback(() => {
     setShowForm(false)
@@ -40,7 +50,6 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
   const handleAdd = () => {
     setEditCategory(undefined)
     setShowForm(true)
-    setDeleteError(null)
   }
 
   return (
@@ -55,12 +64,6 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
           Add category
         </button>
       </div>
-
-      {deleteError && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          {deleteError}
-        </div>
-      )}
 
       {showForm && (
         <CategoryForm
@@ -77,6 +80,7 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
           onDelete={handleDelete}
         />
       </div>
+      <ConfirmDialog {...dialogProps} />
     </div>
   )
 }

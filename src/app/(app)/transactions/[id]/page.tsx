@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { getTransaction, deleteTransaction } from '@/lib/actions/transactions'
+import { getTransaction } from '@/lib/actions/transactions'
 import { getAccounts } from '@/lib/actions/accounts'
 import { getCategories } from '@/lib/actions/categories'
 import { TransactionForm } from '@/components/transactions/transaction-form'
+import { DeleteTransactionButton } from '@/components/transactions/delete-transaction-button'
 import { Currency } from '@/components/ui/currency'
 
 interface TransactionDetailPageProps {
@@ -16,8 +17,6 @@ export default async function TransactionDetailPage({ params }: TransactionDetai
     getAccounts(),
     getCategories(),
   ])
-
-  const deleteWithId = deleteTransaction.bind(null, id)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -55,14 +54,7 @@ export default async function TransactionDetailPage({ params }: TransactionDetai
             <p className="text-sm text-slate-500 mb-4">
               Deleting this transaction will reverse its effect on the account balance.
             </p>
-            <form action={deleteWithId}>
-              <button
-                type="submit"
-                className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-              >
-                Delete Transaction
-              </button>
-            </form>
+            <DeleteTransactionButton id={id} />
           </div>
         </div>
       </main>
