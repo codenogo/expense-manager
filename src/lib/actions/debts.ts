@@ -125,13 +125,16 @@ export async function deleteDebt(id: string): Promise<void> {
 export async function recordPayment(id: string, formData: FormData): Promise<void> {
   const amountKES = parseFloat(formData.get('amount') as string) || 0
   const amountCents = Math.round(amountKES * 100)
-  const accountId = (formData.get('account_id') as string) || null
+  const accountId = formData.get('account_id') as string
+  const notes = (formData.get('notes') as string) || 'Debt payment'
+
+  if (!accountId) throw new Error('Account is required for debt payments')
 
   const supabase = await createClient()
   const householdId = await getHouseholdId()
-
   const { user } = await getAuthContext()
 
+  // 1. Fetch current debt balance
   const { data: debt, error: debtError } = await supabase
     .from('debts')
     .select('balance')
@@ -142,58 +145,86 @@ export async function recordPayment(id: string, formData: FormData): Promise<voi
   if (debtError || !debt) throw new Error(debtError?.message ?? 'Debt not found')
 
   const newBalance = debt.balance - amountCents
+  const today = new Date().toISOString().split('T')[0]
 
-  if (accountId) {
-    const today = new Date().toISOString().split('T')[0]
+  // 2. Create expense transaction on source account
+  const { data: tx, error: txError } = await supabase
+    .from('transactions')
+    .insert({
+      household_id: householdId,
+      account_id: accountId,
+      amount: amountCents,
+      type: 'expense',
+      date: today,
+      notes,
+      created_by: user.id,
+    })
+    .select('id')
+    .single()
 
-    // Run debt update and transaction insert in parallel
-    const [{ error: updateError }, { error: txError }] = await Promise.all([
-      supabase
-        .from('debts')
-        .update({ balance: newBalance })
-        .eq('id', id)
-        .eq('household_id', householdId),
-      supabase.from('transactions').insert({
-        household_id: householdId,
-        account_id: accountId,
-        amount: amountCents,
-        type: 'expense',
-        date: today,
-        notes: 'Debt payment',
-        created_by: user.id,
-      }),
-    ])
+  if (txError || !tx) throw new Error(txError?.message ?? 'Failed to create transaction')
 
-    if (updateError) throw new Error(updateError.message)
-    if (txError) throw new Error(txError.message)
+  // 3. Create debt_payments record
+  const { error: paymentError } = await supabase.from('debt_payments').insert({
+    household_id: householdId,
+    debt_id: id,
+    account_id: accountId,
+    transaction_id: tx.id,
+    amount: amountCents,
+    date: today,
+    notes,
+  })
 
-    // Then update account balance
-    const { data: account, error: accountError } = await supabase
-      .from('accounts')
-      .select('balance')
-      .eq('id', accountId)
-      .eq('household_id', householdId)
-      .single()
+  if (paymentError) throw new Error(paymentError.message)
 
-    if (accountError || !account) throw new Error(accountError?.message ?? 'Account not found')
+  // 4. Update debt balance
+  const { error: updateError } = await supabase
+    .from('debts')
+    .update({ balance: newBalance })
+    .eq('id', id)
+    .eq('household_id', householdId)
 
-    const { error: balanceError } = await supabase
-      .from('accounts')
-      .update({ balance: account.balance - amountCents })
-      .eq('id', accountId)
-      .eq('household_id', householdId)
+  if (updateError) throw new Error(updateError.message)
 
-    if (balanceError) throw new Error(balanceError.message)
-  } else {
-    const { error: updateError } = await supabase
-      .from('debts')
-      .update({ balance: newBalance })
-      .eq('id', id)
-      .eq('household_id', householdId)
+  // 5. Update source account balance
+  const { data: account, error: accountError } = await supabase
+    .from('accounts')
+    .select('balance')
+    .eq('id', accountId)
+    .eq('household_id', householdId)
+    .single()
 
-    if (updateError) throw new Error(updateError.message)
-  }
+  if (accountError || !account) throw new Error(accountError?.message ?? 'Account not found')
 
+  const { error: balanceError } = await supabase
+    .from('accounts')
+    .update({ balance: account.balance - amountCents })
+    .eq('id', accountId)
+    .eq('household_id', householdId)
+
+  if (balanceError) throw new Error(balanceError.message)
+
+  // 6. Sync loan account balance
+  await syncLoanAccountBalance(householdId)
+
+  // 7. Invalidate caches
   updateTag(`dashboard-${householdId}`)
   updateTag(`accounts-${householdId}`)
+}
+
+export async function getDebtPayments(debtId: string): Promise<Tables<'debt_payments'>[]> {
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const { data, error } = await supabase
+    .from('debt_payments')
+    .select('*')
+    .eq('debt_id', debtId)
+    .eq('household_id', householdId)
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  if (error) throw new Error(error.message)
+
+  return data ?? []
 }
