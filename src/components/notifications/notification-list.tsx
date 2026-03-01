@@ -1,13 +1,8 @@
 'use client'
 
-interface Notification {
-  id: string
-  type: 'bill_overdue' | 'budget_overspend' | 'low_balance'
-  title: string
-  body: string
-  read: boolean
-  created_at: string
-}
+import type { Tables } from '@/types/database'
+
+type Notification = Tables<'notifications'>
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()

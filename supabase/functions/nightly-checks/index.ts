@@ -6,9 +6,27 @@ Deno.serve(async () => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  const today = new Date().toISOString().split('T')[0]
+  const now = new Date()
+  const today = now.toISOString().split('T')[0]
   const currentMonth = today.slice(0, 7) // YYYY-MM
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
   let created = 0
+
+  // Fetch recent notifications to deduplicate (skip if same type+household within 24h)
+  const { data: recentNotifs } = await supabase
+    .from('notifications')
+    .select('household_id, type')
+    .gte('created_at', oneDayAgo)
+
+  const recentKeys = new Set(
+    (recentNotifs ?? []).map((n: { household_id: string; type: string }) =>
+      `${n.household_id}:${n.type}`
+    )
+  )
+
+  function alreadyNotified(householdId: string, type: string): boolean {
+    return recentKeys.has(`${householdId}:${type}`)
+  }
 
   // 1. Check overdue bills
   const { data: overdueBills } = await supabase
@@ -17,7 +35,8 @@ Deno.serve(async () => {
     .lt('next_due_date', today)
 
   for (const bill of overdueBills ?? []) {
-    // Get a user from this household to notify
+    if (alreadyNotified(bill.household_id, 'bill_overdue')) continue
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('id')
@@ -60,7 +79,7 @@ Deno.serve(async () => {
 
     const spent = (txs ?? []).reduce((sum: number, t: { amount: number }) => sum + t.amount, 0)
 
-    if (spent > budget.amount) {
+    if (spent > budget.amount && !alreadyNotified(budget.household_id, 'budget_overspend')) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('id')
@@ -88,6 +107,8 @@ Deno.serve(async () => {
     .lt('balance', 100000)
 
   for (const account of lowAccounts ?? []) {
+    if (alreadyNotified(account.household_id, 'low_balance')) continue
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('id')

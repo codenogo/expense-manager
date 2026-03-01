@@ -4,17 +4,9 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from '@/lib/actions/notifications'
 import { NotificationList } from './notification-list'
+import type { Tables } from '@/types/database'
 
-interface Notification {
-  id: string
-  household_id: string
-  user_id: string
-  type: 'bill_overdue' | 'budget_overspend' | 'low_balance'
-  title: string
-  body: string
-  read: boolean
-  created_at: string
-}
+type Notification = Tables<'notifications'>
 
 export function NotificationBell({ householdId }: { householdId: string }) {
   const [unreadCount, setUnreadCount] = useState(0)
@@ -47,7 +39,7 @@ export function NotificationBell({ householdId }: { householdId: string }) {
         () => {
           getUnreadCount().then(setUnreadCount)
           if (openRef.current) {
-            getNotifications().then((data) => setNotifications(data as Notification[]))
+            getNotifications().then((data) => setNotifications(data))
           }
         }
       )
@@ -72,7 +64,7 @@ export function NotificationBell({ householdId }: { householdId: string }) {
   const handleToggle = async () => {
     if (!open) {
       const data = await getNotifications()
-      setNotifications(data as Notification[])
+      setNotifications(data)
     }
     setOpen(!open)
   }
