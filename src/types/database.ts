@@ -352,6 +352,47 @@ export interface Database {
           }
         ]
       }
+      notifications: {
+        Row: {
+          id: string
+          household_id: string
+          user_id: string
+          type: 'bill_overdue' | 'budget_overspend' | 'low_balance'
+          title: string
+          body: string
+          read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          household_id: string
+          user_id: string
+          type: 'bill_overdue' | 'budget_overspend' | 'low_balance'
+          title: string
+          body: string
+          read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          household_id?: string
+          user_id?: string
+          type?: 'bill_overdue' | 'budget_overspend' | 'low_balance'
+          title?: string
+          body?: string
+          read?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       categorization_rules: {
         Row: {
           id: string

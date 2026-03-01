@@ -1,8 +1,12 @@
-import { formatKES } from '@/components/ui/currency'
+'use client'
+
+import { SimplePieChart } from '@/components/charts/pie-chart'
 
 interface CategoryBreakdownProps {
   breakdown: { categoryName: string; amount: number; percentage: number }[]
 }
+
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#f87171', '#64748b', '#06b6d4', '#ec4899']
 
 export function CategoryBreakdown({ breakdown }: CategoryBreakdownProps) {
   if (breakdown.length === 0) {
@@ -14,26 +18,16 @@ export function CategoryBreakdown({ breakdown }: CategoryBreakdownProps) {
     )
   }
 
+  const pieData = breakdown.map((item, i) => ({
+    name: item.categoryName,
+    value: item.amount,
+    color: COLORS[i % COLORS.length],
+  }))
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-6">
       <h2 className="text-sm font-semibold text-slate-700 mb-4">Spending by Category</h2>
-      <div className="space-y-3">
-        {breakdown.map((item) => (
-          <div key={item.categoryName}>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm text-slate-700">{item.categoryName}</span>
-              <span className="text-sm font-medium text-slate-900">{formatKES(item.amount)}</span>
-            </div>
-            <div className="bg-slate-100 rounded-full h-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${item.percentage}%` }}
-              />
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">{item.percentage}%</p>
-          </div>
-        ))}
-      </div>
+      <SimplePieChart data={pieData} height={280} />
     </div>
   )
 }
