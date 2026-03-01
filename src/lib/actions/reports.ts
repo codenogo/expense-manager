@@ -72,3 +72,65 @@ export async function getMonthlyTrends(monthCount: number = 6): Promise<MonthlyT
     { tags: [`reports-${householdId}`], revalidate: 1800 }
   )()
 }
+
+export interface CategoryReport {
+  categoryName: string
+  amount: number
+  percentage: number
+}
+
+export async function getCategoryReport(): Promise<CategoryReport[]> {
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  return unstable_cache(
+    async () => {
+      const now = new Date()
+      const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+
+      const { data: transactions } = await supabase
+        .from('transactions')
+        .select('category_id, amount')
+        .eq('household_id', householdId)
+        .eq('type', 'expense')
+        .gte('date', startDate)
+
+      const txs = transactions ?? []
+
+      // Aggregate by category
+      const categoryMap = new Map<string, number>()
+      for (const tx of txs) {
+        const catId = tx.category_id ?? 'uncategorized'
+        categoryMap.set(catId, (categoryMap.get(catId) ?? 0) + tx.amount)
+      }
+
+      if (categoryMap.size === 0) return []
+
+      // Fetch category names
+      const categoryIds = [...categoryMap.keys()].filter(id => id !== 'uncategorized')
+      const { data: categories } = await supabase
+        .from('categories')
+        .select('id, name')
+        .in('id', categoryIds.length > 0 ? categoryIds : ['_'])
+
+      const catNames = new Map<string, string>()
+      for (const c of categories ?? []) {
+        catNames.set(c.id, c.name)
+      }
+
+      const total = [...categoryMap.values()].reduce((a, b) => a + b, 0)
+
+      const result: CategoryReport[] = [...categoryMap.entries()]
+        .map(([catId, amount]) => ({
+          categoryName: catId === 'uncategorized' ? 'Uncategorized' : (catNames.get(catId) ?? 'Unknown'),
+          amount,
+          percentage: total > 0 ? Math.round((amount / total) * 100) : 0,
+        }))
+        .sort((a, b) => b.amount - a.amount)
+
+      return result
+    },
+    ['category-report', householdId],
+    { tags: [`reports-${householdId}`], revalidate: 1800 }
+  )()
+}

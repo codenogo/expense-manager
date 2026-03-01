@@ -14,6 +14,7 @@ const navItems = [
   { href: '/bills', label: 'Bills' },
   { href: '/debts', label: 'Debts' },
   { href: '/savings', label: 'Savings' },
+  { href: '/reports', label: 'Reports' },
   { href: '/import', label: 'Import' },
   { href: '/categories', label: 'Categories' },
   { href: '/accounts', label: 'Accounts' },
