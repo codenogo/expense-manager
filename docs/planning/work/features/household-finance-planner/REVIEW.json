@@ -1,0 +1,222 @@
+{
+  "automated": [
+    {
+      "name": "lint",
+      "result": "fail"
+    },
+    {
+      "name": "types",
+      "result": "pass"
+    },
+    {
+      "name": "tests",
+      "result": "pass"
+    }
+  ],
+  "blockers": [],
+  "branch": "feature/household-finance-planner",
+  "feature": "household-finance-planner",
+  "impactAnalysis": {
+    "affected_files": [],
+    "affected_symbols": [],
+    "enabled": true,
+    "graph_status": "indexed",
+    "per_file": {
+      ".cnogo/issues.jsonl": [],
+      ".cnogo/scripts/__pycache__/workflow_checks_core.cpython-314.pyc": [],
+      ".cnogo/scripts/memory/__pycache__/bridge.cpython-314.pyc": [],
+      ".cnogo/scripts/memory/__pycache__/context.cpython-314.pyc": [],
+      ".cnogo/scripts/memory/__pycache__/sync.cpython-314.pyc": [],
+      "docs/planning/WORKFLOW.json": []
+    },
+    "total_affected": 0
+  },
+  "invariants": {
+    "findings": [],
+    "summary": {
+      "fail": 0,
+      "total": 0,
+      "warn": 0
+    }
+  },
+  "packages": [
+    {
+      "checks": [
+        {
+          "cmd": "npm run -s lint",
+          "cwd": ".",
+          "exitCode": 1,
+          "fullOutputPath": ".cnogo/tee/20260228T234920.688235Z_93343_limohome_lint.log",
+          "name": "lint",
+          "output": "GROUPED FINDINGS:\nproblems: 1\nFINDINGS:\n92:13  error  Do not use an `<a>` element to navigate to `/accounts/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages (x2)\n145:13  error  Do not use an `<a>` element to navigate to `/bills/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages (x2)\n151:9  error  Do not use an `<a>` element to navigate to `/bills/new/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages (x2)\n3:26  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars (x2)\n17:10  warning  'isPending' is assigned a value but never used  @typescript-eslint/no-unused-vars (x2)\n4:10  warning  'deleteCategory' is defined but never used                                                  @typescript-eslint/no-unused-vars (x2)\n85:17  error    Do not pass children as props. Instead, nest children between the opening and closing tags  react/no-children-prop (x2)\n124:13  error    Do not pass children as props. Instead, nest children between the opening and closing tags  react/no-children-prop (x2)\n7:10  warning  'formatCompact' is defined but never used  @typescript-eslint/no-unused-vars (x2)\n145:13  error  Do not use an `<a>` element to navigate to `/debts/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages (x2)\n30:10  warning  'mapping' is assigned a value but never used                                                                                                                        @typescript-eslint/no-unused-vars (x2)\n92:11  error    Do not use an `<a>` element to navigate to `/transactions/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages (x2)\n147:13  error  Do not use an `<a>` element to navigate to `/transactions/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages (x2)\n74:9  warning  'freedMinimums' is assigned a value but never used  @typescript-eslint/no-unused-vars (x2)\n\u2716 14 problems (8 errors, 6 warnings) (x2)\nSUMMARY:",
+          "outputReducer": "grouped-errors",
+          "reason": null,
+          "result": "fail",
+          "tokenTelemetry": {
+            "inputTokens": 807,
+            "outputTokens": 603,
+            "savedTokens": 204,
+            "savingsPct": 25.3
+          }
+        },
+        {
+          "cmd": "npx tsc --noEmit",
+          "cwd": ".",
+          "exitCode": 0,
+          "fullOutputPath": null,
+          "name": "typecheck",
+          "output": "",
+          "outputReducer": "empty",
+          "reason": null,
+          "result": "pass",
+          "tokenTelemetry": {
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "savedTokens": 0,
+            "savingsPct": 0.0
+          }
+        },
+        {
+          "cmd": "npm test --silent",
+          "cwd": ".",
+          "exitCode": 0,
+          "fullOutputPath": null,
+          "name": "test",
+          "output": "SUMMARY:\nTest Files  3 passed (3)\nTests  30 passed (30)\nDuration  145ms (transform 107ms, setup 0ms, import 137ms, tests 10ms, environment 0ms)",
+          "outputReducer": "failure-focus",
+          "reason": null,
+          "result": "pass",
+          "tokenTelemetry": {
+            "inputTokens": 168,
+            "outputTokens": 35,
+            "savedTokens": 133,
+            "savingsPct": 79.2
+          }
+        }
+      ],
+      "kind": "node",
+      "name": "limohome",
+      "path": "."
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": ".next",
+      "path": ".next"
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": "build",
+      "path": ".next/build"
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": "dev",
+      "path": ".next/dev"
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": "build",
+      "path": ".next/dev/build"
+    }
+  ],
+  "patternCompliance": [],
+  "performanceFindings": [],
+  "principleNotes": [],
+  "schemaVersion": 4,
+  "securityFindings": [],
+  "stageReviews": [
+    {
+      "evidence": [],
+      "findings": [],
+      "notes": "",
+      "stage": "spec-compliance",
+      "status": "pending"
+    },
+    {
+      "evidence": [],
+      "findings": [],
+      "notes": "",
+      "stage": "code-quality",
+      "status": "pending"
+    }
+  ],
+  "timestamp": "2026-02-28T23:49:23Z",
+  "tokenTelemetry": {
+    "checksRun": 3,
+    "checksSkipped": 12,
+    "inputTokens": 975,
+    "outputTokens": 638,
+    "savedTokens": 337,
+    "savingsPct": 34.6
+  },
+  "verdict": "fail",
+  "warnings": []
+}

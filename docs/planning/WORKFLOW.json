@@ -63,7 +63,44 @@
     "scanScope": "changed",
     "todoRequiresTicket": true
   },
-  "packages": [],
+  "packages": [
+    {
+      "commands": {
+        "build": "npm run -s build",
+        "lint": "npm run -s lint",
+        "run": "npm run -s dev",
+        "test": "npm test --silent",
+        "typecheck": "npx tsc --noEmit"
+      },
+      "kind": "node",
+      "name": "limohome",
+      "path": "."
+    },
+    {
+      "commands": {},
+      "kind": "node",
+      "name": ".next",
+      "path": ".next"
+    },
+    {
+      "commands": {},
+      "kind": "node",
+      "name": "build",
+      "path": ".next/build"
+    },
+    {
+      "commands": {},
+      "kind": "node",
+      "name": "dev",
+      "path": ".next/dev"
+    },
+    {
+      "commands": {},
+      "kind": "node",
+      "name": "build",
+      "path": ".next/dev/build"
+    }
+  ],
   "performance": {
     "bootstrapContext": {
       "commandSetWordMax": 7000,

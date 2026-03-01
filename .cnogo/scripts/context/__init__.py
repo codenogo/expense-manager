@@ -32,6 +32,7 @@ from scripts.context.phases.types import process_types
 from scripts.context.phases.structure import process_structure
 from scripts.context.phases.symbols import process_symbols
 from scripts.context.python_parser import PythonParser
+from scripts.context.typescript_parser import TypeScriptParser
 from scripts.context.storage import GraphStorage
 from scripts.context.walker import walk
 
@@ -106,11 +107,16 @@ class ContextGraph:
         # Step 5: Run structure phase (creates FILE + FOLDER nodes)
         process_structure(changed_files, self._storage)
 
-        # Step 6: Parse changed files
+        # Step 6: Parse changed files (language-aware routing)
         parse_results = {}
         for entry in changed_files:
             file_path = str(PurePosixPath(entry.path))
-            result = PythonParser.parse(entry.content, file_path)
+            if entry.language == "python":
+                result = PythonParser.parse(entry.content, file_path)
+            elif entry.language in ("typescript", "javascript"):
+                result = TypeScriptParser.parse(entry.content, file_path)
+            else:
+                continue
             parse_results[file_path] = result
 
         # Step 7: Run phases in order

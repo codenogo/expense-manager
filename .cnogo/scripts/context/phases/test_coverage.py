@@ -16,17 +16,34 @@ from scripts.context.storage import GraphStorage
 
 
 def _is_test_file(file_path: str) -> bool:
-    """Return True if file_path looks like a test file."""
+    """Return True if file_path looks like a test file.
+
+    Supports Python (test_*.py, *_test.py), TypeScript/JavaScript
+    (*.test.ts, *.spec.ts, *.test.tsx, *.spec.tsx, *.test.js, *.spec.js,
+    *.test.jsx, *.spec.jsx), and files under test directories.
+    """
     pure = PurePosixPath(file_path)
     name = pure.name
-    # Match: test_*.py, *_test.py, or any file under a tests/ directory
+
+    # Python conventions: test_*.py, *_test.py
     if name.startswith("test_") and name.endswith(".py"):
         return True
     if name.endswith("_test.py"):
         return True
-    parts = pure.parts
-    if any(part in ("tests", "test") for part in parts[:-1]):
+
+    # TS/JS conventions: *.test.ts, *.spec.ts, *.test.tsx, *.spec.tsx, etc.
+    _TS_JS_TEST_SUFFIXES = (
+        ".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx",
+        ".test.js", ".test.jsx", ".spec.js", ".spec.jsx",
+    )
+    if any(name.endswith(suffix) for suffix in _TS_JS_TEST_SUFFIXES):
         return True
+
+    # Directory conventions: files under tests/, test/, or __tests__/ dirs
+    parts = pure.parts
+    if any(part in ("tests", "test", "__tests__") for part in parts[:-1]):
+        return True
+
     return False
 
 

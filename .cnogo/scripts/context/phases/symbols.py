@@ -22,6 +22,9 @@ _KIND_TO_LABEL = {
     "function": NodeLabel.FUNCTION,
     "class": NodeLabel.CLASS,
     "method": NodeLabel.METHOD,
+    "interface": NodeLabel.INTERFACE,
+    "type_alias": NodeLabel.TYPE_ALIAS,
+    "enum": NodeLabel.ENUM,
 }
 
 
