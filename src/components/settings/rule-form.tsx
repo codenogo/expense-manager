@@ -3,6 +3,17 @@
 import { useState, useTransition } from 'react'
 import { createRule, updateRule } from '@/lib/actions/rules'
 import type { Tables } from '@/types/database'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Combobox } from '@/components/ui/combobox'
 
 interface RuleFormProps {
   categories: Tables<'categories'>[]
@@ -13,6 +24,8 @@ interface RuleFormProps {
 export function RuleForm({ categories, rule, onDone }: RuleFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+
+  const categoryOptions = categories.map((c) => ({ value: c.id, label: c.name }))
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -35,97 +48,78 @@ export function RuleForm({ categories, rule, onDone }: RuleFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <label htmlFor="match_pattern" className="text-sm font-medium text-slate-700">
-            Pattern <span className="text-red-500">*</span>
-          </label>
-          <input
+        <div>
+          <Label htmlFor="match_pattern" className="mb-1">
+            Pattern <span className="text-destructive">*</span>
+          </Label>
+          <Input
             id="match_pattern"
             name="match_pattern"
             type="text"
             required
             defaultValue={rule?.match_pattern ?? ''}
             placeholder="e.g. Safaricom"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="match_type" className="text-sm font-medium text-slate-700">
-            Match type <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="match_type"
-            name="match_type"
-            required
-            defaultValue={rule?.match_type ?? 'contains'}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="contains">Contains</option>
-            <option value="exact">Exact</option>
-            <option value="starts_with">Starts with</option>
-          </select>
+        <div>
+          <Label className="mb-1">
+            Match type <span className="text-destructive">*</span>
+          </Label>
+          <Select name="match_type" defaultValue={rule?.match_type ?? 'contains'} required>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select match type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="contains">Contains</SelectItem>
+              <SelectItem value="exact">Exact</SelectItem>
+              <SelectItem value="starts_with">Starts with</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="category_id" className="text-sm font-medium text-slate-700">
-            Category <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="category_id"
+        <div>
+          <Label className="mb-1">
+            Category <span className="text-destructive">*</span>
+          </Label>
+          <Combobox
             name="category_id"
-            required
+            options={categoryOptions}
             defaultValue={rule?.category_id ?? ''}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">-- Select category --</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            required
+            placeholder="Select category"
+            searchPlaceholder="Search categories..."
+            emptyMessage="No categories found."
+          />
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="priority" className="text-sm font-medium text-slate-700">
-            Priority
-          </label>
-          <input
+        <div>
+          <Label htmlFor="priority" className="mb-1">Priority</Label>
+          <Input
             id="priority"
             name="priority"
             type="number"
             defaultValue={rule?.priority ?? 0}
             placeholder="0"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <p className="text-xs text-slate-400">Higher number = higher priority</p>
+          <p className="text-xs text-muted-foreground mt-1">Higher number = higher priority</p>
         </div>
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
           {error}
-        </p>
+        </div>
       )}
 
       <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
+        <Button type="submit" disabled={isPending}>
           {isPending ? 'Saving...' : rule ? 'Update Rule' : 'Add Rule'}
-        </button>
+        </Button>
         {onDone && (
-          <button
-            type="button"
-            onClick={onDone}
-            disabled={isPending}
-            className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors disabled:opacity-50"
-          >
+          <Button type="button" variant="outline" onClick={onDone} disabled={isPending}>
             Cancel
-          </button>
+          </Button>
         )}
       </div>
     </form>
