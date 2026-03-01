@@ -13,6 +13,77 @@ export interface PayoffResult {
   order: number
 }
 
+export interface AmortizationEntry {
+  month: number
+  payment: number          // cents
+  principal: number        // cents
+  interest: number         // cents
+  remainingBalance: number // cents
+}
+
+export interface AmortizationResult {
+  entries: AmortizationEntry[]
+  totalInterest: number  // cents
+  totalPaid: number      // cents
+  monthsToPayoff: number
+}
+
+export function calculateAmortization(
+  balance: number,        // cents
+  interestRate: number,   // annual percentage (e.g., 15 for 15%)
+  monthlyPayment: number  // cents
+): AmortizationResult {
+  if (balance <= 0) {
+    return { entries: [], totalInterest: 0, totalPaid: 0, monthsToPayoff: 0 }
+  }
+
+  const MAX_MONTHS = 1200
+  const entries: AmortizationEntry[] = []
+  let remaining = balance
+
+  if (interestRate === 0) {
+    let month = 1
+    while (remaining > 0 && month <= MAX_MONTHS) {
+      const payment = Math.min(monthlyPayment, remaining)
+      remaining -= payment
+      entries.push({
+        month,
+        payment,
+        principal: payment,
+        interest: 0,
+        remainingBalance: Math.max(0, remaining),
+      })
+      month++
+    }
+  } else {
+    const monthlyRate = interestRate / 12 / 100
+    for (let month = 1; month <= MAX_MONTHS; month++) {
+      const monthInterest = Math.round(remaining * monthlyRate)
+      const actualPayment = Math.min(monthlyPayment, remaining + monthInterest)
+      const principal = actualPayment - monthInterest
+      remaining = Math.max(0, remaining + monthInterest - actualPayment)
+      entries.push({
+        month,
+        payment: actualPayment,
+        principal,
+        interest: monthInterest,
+        remainingBalance: remaining,
+      })
+      if (remaining <= 0) break
+    }
+  }
+
+  const totalInterest = entries.reduce((sum, e) => sum + e.interest, 0)
+  const totalPaid = entries.reduce((sum, e) => sum + e.payment, 0)
+
+  return {
+    entries,
+    totalInterest,
+    totalPaid,
+    monthsToPayoff: entries.length,
+  }
+}
+
 export function calculatePayoff(
   debts: DebtInput[],
   strategy: 'avalanche' | 'snowball',
