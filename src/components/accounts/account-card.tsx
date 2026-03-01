@@ -27,7 +27,7 @@ interface AccountCardProps {
 export function AccountCard({ account }: AccountCardProps) {
   return (
     <Link href={`/accounts/${account.id}`} className="block group">
-      <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border border-slate-100">
+      <div className={`bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow ${account.is_system_managed ? 'border-2 border-dashed border-slate-200' : 'border border-slate-100'}`}>
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
@@ -38,6 +38,11 @@ export function AccountCard({ account }: AccountCardProps) {
             >
               {TYPE_LABELS[account.type]}
             </span>
+            {account.is_system_managed && (
+              <span className="inline-block mt-1 ml-1 text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                Auto-managed
+              </span>
+            )}
           </div>
           <div className="text-right ml-4">
             <p className="text-sm font-semibold text-slate-900">

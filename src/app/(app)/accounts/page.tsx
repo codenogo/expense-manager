@@ -78,9 +78,13 @@ export default async function AccountsPage() {
             if (!group || group.length === 0) return null
             return (
               <section key={type}>
-                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1">
                   {TYPE_LABELS[type]}
                 </h2>
+                {type === 'loan' && (
+                  <p className="text-xs text-slate-400 mb-3">Automatically tracks total debt balance</p>
+                )}
+                {type !== 'loan' && <div className="mb-2" />}
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {group.map((account) => (
                     <AccountCard key={account.id} account={account} />
