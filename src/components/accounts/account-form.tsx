@@ -25,6 +25,26 @@ export function AccountForm({ account }: AccountFormProps) {
 
   const defaultBalance = account ? (account.balance / 100).toFixed(2) : '0.00'
 
+  if (account?.is_system_managed) {
+    return (
+      <div className="max-w-lg">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-lg font-semibold text-slate-900">Total Loans</h2>
+            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Auto-managed</span>
+          </div>
+          <p className="text-sm text-slate-500 mb-4">
+            This account automatically tracks the total balance of all your debts.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const typeEntries = Object.entries(ACCOUNT_TYPE_LABELS).filter(
+    ([value]) => isEdit || value !== 'loan'
+  )
+
   return (
     <div className="max-w-lg">
       <div className="bg-white rounded-xl shadow-sm p-6">
@@ -59,7 +79,7 @@ export function AccountForm({ account }: AccountFormProps) {
               defaultValue={account?.type ?? 'checking'}
               className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              {Object.entries(ACCOUNT_TYPE_LABELS).map(([value, label]) => (
+              {typeEntries.map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>

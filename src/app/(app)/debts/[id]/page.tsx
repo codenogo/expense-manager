@@ -1,9 +1,11 @@
 import Link from 'next/link'
-import { getDebt, updateDebt, recordPayment } from '@/lib/actions/debts'
+import { getDebt, updateDebt, recordPayment, getDebtPayments } from '@/lib/actions/debts'
 import { getAccounts } from '@/lib/actions/accounts'
 import { DebtForm } from '@/components/debts/debt-form'
 import { DeleteDebtButton } from '@/components/debts/delete-debt-button'
 import { Currency } from '@/components/ui/currency'
+import { AmortizationTable } from '@/components/debts/amortization-table'
+import { PaymentHistory } from '@/components/debts/payment-history'
 
 interface DebtDetailPageProps {
   params: Promise<{ id: string }>
@@ -11,7 +13,7 @@ interface DebtDetailPageProps {
 
 export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
   const { id } = await params
-  const [debt, accounts] = await Promise.all([getDebt(id), getAccounts()])
+  const [debt, accounts, payments] = await Promise.all([getDebt(id), getAccounts(), getDebtPayments(id)])
 
   const updateWithId = updateDebt.bind(null, id)
   const recordPaymentWithId = recordPayment.bind(null, id)
@@ -38,6 +40,12 @@ export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
         <DebtForm debt={debt} action={updateWithId} />
+
+        <AmortizationTable
+          balance={debt.balance}
+          interestRate={debt.interest_rate}
+          minPayment={debt.min_payment}
+        />
 
         <div className="max-w-lg">
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -67,23 +75,36 @@ export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
                   htmlFor="account_id"
                   className="block text-sm font-medium text-slate-700 mb-1"
                 >
-                  Account <span className="text-slate-400">(optional)</span>
+                  Account
                 </label>
                 <select
                   id="account_id"
                   name="account_id"
+                  required
                   className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">None</option>
-                  {accounts.map((account) => (
+                  {accounts.filter((a) => !a.is_system_managed).map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name}
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-slate-400 mt-1">
-                  Set an account to auto-create an expense transaction.
-                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="payment_notes"
+                  className="block text-sm font-medium text-slate-700 mb-1"
+                >
+                  Notes <span className="text-slate-400">(optional)</span>
+                </label>
+                <textarea
+                  id="payment_notes"
+                  name="notes"
+                  rows={2}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g. Monthly installment"
+                />
               </div>
 
               <button
@@ -95,6 +116,8 @@ export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
             </form>
           </div>
         </div>
+
+        <PaymentHistory payments={payments} />
 
         <div className="max-w-lg">
           <div className="bg-white rounded-xl shadow-sm p-6 border border-red-100">

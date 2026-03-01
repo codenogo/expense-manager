@@ -66,6 +66,7 @@ export interface Database {
           name: string
           type: 'checking' | 'savings' | 'credit_card' | 'loan' | 'cash' | 'mpesa'
           balance: number
+          is_system_managed: boolean
           created_at: string
           updated_at: string
         }
@@ -75,6 +76,7 @@ export interface Database {
           name: string
           type: 'checking' | 'savings' | 'credit_card' | 'loan' | 'cash' | 'mpesa'
           balance?: number
+          is_system_managed?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -84,6 +86,7 @@ export interface Database {
           name?: string
           type?: 'checking' | 'savings' | 'credit_card' | 'loan' | 'cash' | 'mpesa'
           balance?: number
+          is_system_managed?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -424,6 +427,50 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: 'categorization_rules_household_id_fkey'
+            columns: ['household_id']
+            isOneToOne: false
+            referencedRelation: 'households'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      debt_payments: {
+        Row: {
+          id: string
+          household_id: string
+          debt_id: string
+          account_id: string
+          transaction_id: string | null
+          amount: number
+          date: string
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          household_id: string
+          debt_id: string
+          account_id: string
+          transaction_id?: string | null
+          amount: number
+          date?: string
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          household_id?: string
+          debt_id?: string
+          account_id?: string
+          transaction_id?: string | null
+          amount?: number
+          date?: string
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'debt_payments_household_id_fkey'
             columns: ['household_id']
             isOneToOne: false
             referencedRelation: 'households'
