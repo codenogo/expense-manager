@@ -18,34 +18,34 @@ interface RecentTransactionsProps {
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   if (transactions.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-sm font-semibold text-slate-700 mb-3">Recent Transactions</h2>
-        <p className="text-sm text-slate-400">No transactions this month.</p>
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h2 className="text-sm font-semibold text-foreground mb-3">Recent Transactions</h2>
+        <p className="text-sm text-muted-foreground">No transactions this month.</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="bg-card rounded-xl border border-border overflow-hidden">
       <div className="flex items-center justify-between px-6 pt-5 pb-3">
-        <h2 className="text-sm font-semibold text-slate-700">Recent Transactions</h2>
-        <Link href="/transactions" className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+        <h2 className="text-sm font-semibold text-foreground">Recent Transactions</h2>
+        <Link href="/transactions" className="text-xs text-primary hover:text-primary/80 font-medium">
           View all
         </Link>
       </div>
-      <div className="divide-y divide-slate-100">
+      <div className="divide-y divide-border">
         {transactions.map((tx) => (
           <Link
             key={tx.id}
             href={`/transactions/${tx.id}`}
-            className="flex items-center justify-between px-6 py-3 hover:bg-slate-50 transition-colors"
+            className="flex items-center justify-between px-6 py-3 hover:bg-muted/50 transition-colors"
           >
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-slate-900 truncate">{tx.categoryName}</p>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm font-medium text-foreground truncate">{tx.categoryName}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {tx.accountName}
                 {tx.notes && (
-                  <span className="ml-2 text-slate-400">
+                  <span className="ml-2 text-muted-foreground/70">
                     {tx.notes.length > 30 ? tx.notes.slice(0, 30) + '...' : tx.notes}
                   </span>
                 )}
@@ -57,7 +57,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
               >
                 {tx.type === 'income' ? '+' : '-'}{formatKES(tx.amount)}
               </span>
-              <p className="text-xs text-slate-400 mt-0.5">{tx.date}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{tx.date}</p>
             </div>
           </Link>
         ))}

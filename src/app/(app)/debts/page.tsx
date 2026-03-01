@@ -7,16 +7,16 @@ export default async function DebtsPage() {
   const debts = await getDebts()
 
   return (
-    <div className="bg-slate-50 min-h-screen">
-      <header className="bg-white border-b border-slate-200">
+    <div className="bg-background min-h-screen">
+      <header className="bg-card border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-slate-900">Debts</h1>
-            <p className="text-xs text-slate-500">Track and manage your debts</p>
+            <h1 className="text-lg font-semibold text-foreground">Debts</h1>
+            <p className="text-xs text-muted-foreground">Track and manage your debts</p>
           </div>
           <Link
             href="/debts/new"
-            className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
           >
             Add Debt
           </Link>
@@ -27,13 +27,13 @@ export default async function DebtsPage() {
         {debts.length > 0 && <DebtSummary debts={debts} />}
 
         {debts.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
-            <p className="text-slate-500 text-sm mb-4">
+          <div className="bg-card rounded-xl border border-border p-10 text-center">
+            <p className="text-muted-foreground text-sm mb-4">
               No debts recorded. Add your first debt to start tracking.
             </p>
             <Link
               href="/debts/new"
-              className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
             >
               Add Debt
             </Link>

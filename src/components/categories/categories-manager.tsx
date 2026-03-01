@@ -46,11 +46,11 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-slate-900">Categories</h2>
+        <h2 className="text-xl font-semibold text-foreground">Categories</h2>
         <button
           type="button"
           onClick={handleAdd}
-          className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+          className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
         >
           Add category
         </button>
@@ -70,7 +70,7 @@ export function CategoriesManager({ initialCategories }: CategoriesManagerProps)
         />
       )}
 
-      <div className="bg-white rounded-xl border border-slate-200 p-1">
+      <div className="bg-card rounded-xl border border-border p-1">
         <CategoryTree
           categories={initialCategories}
           onEdit={handleEdit}

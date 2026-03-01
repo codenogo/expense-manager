@@ -7,17 +7,17 @@ export default async function NewTransactionPage() {
   const [accounts, categories] = await Promise.all([getAccounts(), getCategories()])
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
+    <div className="min-h-screen bg-background">
+      <header className="bg-card border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
           <Link
             href="/transactions"
-            className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Transactions
           </Link>
-          <span className="text-slate-300">/</span>
-          <h1 className="text-lg font-semibold text-slate-900">New Transaction</h1>
+          <span className="text-border">/</span>
+          <h1 className="text-lg font-semibold text-foreground">New Transaction</h1>
         </div>
       </header>
 

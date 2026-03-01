@@ -3,10 +3,10 @@ import { Currency } from '@/components/ui/currency'
 import type { Tables } from '@/types/database'
 
 const TYPE_BADGE_CLASSES: Record<Tables<'debts'>['type'], string> = {
-  bank_loan: 'bg-blue-100 text-blue-700',
+  bank_loan: 'bg-primary/10 text-primary',
   sacco_loan: 'bg-purple-100 text-purple-700',
   credit_card: 'bg-amber-100 text-amber-700',
-  informal: 'bg-slate-100 text-slate-700',
+  informal: 'bg-muted text-muted-foreground',
 }
 
 const TYPE_LABELS: Record<Tables<'debts'>['type'], string> = {
@@ -23,10 +23,10 @@ interface DebtCardProps {
 export function DebtCard({ debt }: DebtCardProps) {
   return (
     <Link href={`/debts/${debt.id}`} className="block group">
-      <div className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow">
+      <div className="bg-card rounded-xl border border-border p-4 hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+            <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
               {debt.name}
             </h3>
             <span
@@ -35,20 +35,20 @@ export function DebtCard({ debt }: DebtCardProps) {
               {TYPE_LABELS[debt.type]}
             </span>
             {debt.type === 'informal' && debt.owed_to && (
-              <p className="text-xs text-slate-500 mt-1">Owed to: {debt.owed_to}</p>
+              <p className="text-xs text-muted-foreground mt-1">Owed to: {debt.owed_to}</p>
             )}
           </div>
           <div className="text-right ml-4">
-            <p className="text-sm font-semibold text-slate-900">
+            <p className="text-sm font-semibold text-foreground">
               <Currency amount={debt.balance} />
             </p>
             {debt.interest_rate !== null && (
-              <p className="text-xs text-slate-500 mt-0.5">{debt.interest_rate}% p.a.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{debt.interest_rate}% p.a.</p>
             )}
           </div>
         </div>
         {debt.min_payment !== null && (
-          <p className="text-xs text-slate-400 mt-2">
+          <p className="text-xs text-muted-foreground/70 mt-2">
             Min payment: <Currency amount={debt.min_payment} />
           </p>
         )}

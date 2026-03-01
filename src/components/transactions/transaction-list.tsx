@@ -33,8 +33,8 @@ function formatGroupDate(dateStr: string): string {
 export function TransactionList({ transactions, accounts, categories }: TransactionListProps) {
   if (transactions.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
-        <p className="text-slate-500 text-sm">
+      <div className="bg-card rounded-xl border border-border p-10 text-center">
+        <p className="text-muted-foreground text-sm">
           No transactions yet. Add your first transaction to start tracking.
         </p>
       </div>
@@ -53,11 +53,11 @@ export function TransactionList({ transactions, accounts, categories }: Transact
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="bg-card rounded-xl border border-border overflow-hidden">
       {Array.from(groups.entries()).map(([date, txs]) => (
         <div key={date}>
-          <div className="px-4 py-2 bg-slate-50 border-b border-gray-100 sticky top-0">
-            <span className="text-sm text-gray-500 font-medium">{formatGroupDate(date)}</span>
+          <div className="px-4 py-2 bg-muted/50 border-b border-border sticky top-0">
+            <span className="text-sm text-muted-foreground font-medium">{formatGroupDate(date)}</span>
           </div>
           {txs.map((tx) => {
             const categoryName = tx.category_id ? (categoryMap.get(tx.category_id) ?? 'Uncategorized') : 'Uncategorized'
@@ -67,18 +67,18 @@ export function TransactionList({ transactions, accounts, categories }: Transact
               <Link
                 key={tx.id}
                 href={`/transactions/${tx.id}`}
-                className="flex items-center justify-between px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors last:border-b-0"
+                className="flex items-center justify-between px-4 py-3 border-b border-border hover:bg-muted/50 transition-colors last:border-b-0"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-900 truncate">{categoryName}</p>
-                  <p className="text-xs text-slate-500 mt-0.5 truncate">
+                  <p className="text-sm font-medium text-foreground truncate">{categoryName}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
                     {accountName}
-                    {tx.notes ? <span className="ml-2 text-slate-400">{tx.notes.length > 40 ? tx.notes.slice(0, 40) + '...' : tx.notes}</span> : null}
+                    {tx.notes ? <span className="ml-2 text-muted-foreground/70">{tx.notes.length > 40 ? tx.notes.slice(0, 40) + '...' : tx.notes}</span> : null}
                   </p>
                 </div>
                 <div className="ml-4 text-right flex-shrink-0">
                   <span
-                    className={`text-sm font-semibold ${tx.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
+                    className={`text-sm font-semibold ${tx.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}
                   >
                     {tx.type === 'income' ? '+' : '-'}
                     <Currency amount={tx.amount} />

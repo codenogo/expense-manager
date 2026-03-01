@@ -17,7 +17,7 @@ export function ProgressBar({ value, max, className }: ProgressBarProps) {
   }
 
   return (
-    <div className={`bg-slate-100 rounded-full h-2 ${className ?? ''}`}>
+    <div className={`bg-muted rounded-full h-2 ${className ?? ''}`}>
       <div
         className={`${fillColor} h-2 rounded-full transition-all duration-300`}
         style={{ width: `${percentage}%` }}

@@ -22,12 +22,12 @@ export function PayoffStrategy({ debts }: PayoffStrategyProps) {
 
   const results = calculatePayoff(debtInputs, strategy, Math.round(extraMonthly * 100))
 
-  const activeButtonClass = 'bg-blue-600 text-white border border-blue-600'
-  const inactiveButtonClass = 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+  const activeButtonClass = 'bg-primary text-primary-foreground border border-primary'
+  const inactiveButtonClass = 'bg-card border border-border text-foreground hover:bg-muted/50'
 
   return (
-    <section className="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 className="text-base font-semibold text-slate-900 mb-4">Payoff Strategy</h2>
+    <section className="bg-card rounded-xl border border-border p-6">
+      <h2 className="text-base font-semibold text-foreground mb-4">Payoff Strategy</h2>
 
       <div className="flex gap-2 mb-4">
         <button
@@ -45,7 +45,7 @@ export function PayoffStrategy({ debts }: PayoffStrategyProps) {
       </div>
 
       <div className="mb-6">
-        <label htmlFor="extra-payment" className="block text-sm text-slate-600 mb-1">
+        <label htmlFor="extra-payment" className="block text-sm text-muted-foreground mb-1">
           Extra monthly payment (KES)
         </label>
         <input
@@ -56,47 +56,47 @@ export function PayoffStrategy({ debts }: PayoffStrategyProps) {
           value={extraMonthly || ''}
           onChange={(e) => setExtraMonthly(parseFloat(e.target.value) || 0)}
           placeholder="0"
-          className="w-40 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-40 rounded-lg border border-input px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200">
-              <th className="pb-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
+            <tr className="border-b border-border">
+              <th className="pb-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-12">
                 Order
               </th>
-              <th className="pb-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th className="pb-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Name
               </th>
-              <th className="pb-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th className="pb-2 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Balance
               </th>
-              <th className="pb-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wider w-24">
+              <th className="pb-2 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">
                 Months
               </th>
-              <th className="pb-2 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <th className="pb-2 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total Interest
               </th>
             </tr>
           </thead>
           <tbody>
             {results.map((r) => (
-              <tr key={r.name} className="border-b border-slate-100 last:border-0">
-                <td className="py-3 text-slate-400 font-medium">{r.order}</td>
-                <td className="py-3 text-slate-900 font-medium">{r.name}</td>
-                <td className="py-3 text-right text-slate-700">
+              <tr key={r.name} className="border-b border-border last:border-0">
+                <td className="py-3 text-muted-foreground font-medium">{r.order}</td>
+                <td className="py-3 text-foreground font-medium">{r.name}</td>
+                <td className="py-3 text-right text-foreground">
                   {formatKES(debtInputs.find((d) => d.name === r.name)?.balance ?? 0)}
                 </td>
-                <td className="py-3 text-right text-slate-700">
+                <td className="py-3 text-right text-foreground">
                   {r.months === 0 ? (
-                    <span className="text-green-600 font-medium">Paid off</span>
+                    <span className="text-emerald-600 font-medium">Paid off</span>
                   ) : (
                     r.months
                   )}
                 </td>
-                <td className="py-3 text-right text-slate-700">{formatKES(r.totalInterest)}</td>
+                <td className="py-3 text-right text-foreground">{formatKES(r.totalInterest)}</td>
               </tr>
             ))}
           </tbody>
@@ -104,7 +104,7 @@ export function PayoffStrategy({ debts }: PayoffStrategyProps) {
       </div>
 
       {results.length === 0 && (
-        <p className="text-sm text-slate-500 text-center py-4">No debts to display.</p>
+        <p className="text-sm text-muted-foreground text-center py-4">No debts to display.</p>
       )}
     </section>
   )

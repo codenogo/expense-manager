@@ -3,11 +3,11 @@ import { Currency } from '@/components/ui/currency'
 import type { Tables } from '@/types/database'
 
 const TYPE_BADGE_CLASSES: Record<Tables<'accounts'>['type'], string> = {
-  checking: 'bg-blue-100 text-blue-700',
-  savings: 'bg-green-100 text-green-700',
+  checking: 'bg-primary/10 text-primary',
+  savings: 'bg-emerald-100 text-emerald-700',
   credit_card: 'bg-orange-100 text-orange-700',
   loan: 'bg-red-100 text-red-700',
-  cash: 'bg-gray-100 text-gray-700',
+  cash: 'bg-muted text-muted-foreground',
   mpesa: 'bg-emerald-100 text-emerald-700',
 }
 
@@ -27,10 +27,10 @@ interface AccountCardProps {
 export function AccountCard({ account }: AccountCardProps) {
   return (
     <Link href={`/accounts/${account.id}`} className="block group">
-      <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border border-slate-100">
+      <div className="bg-card rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow border border-border">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+            <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
               {account.name}
             </h3>
             <span
@@ -40,7 +40,7 @@ export function AccountCard({ account }: AccountCardProps) {
             </span>
           </div>
           <div className="text-right ml-4">
-            <p className="text-sm font-semibold text-slate-900">
+            <p className="text-sm font-semibold text-foreground">
               <Currency amount={account.balance} />
             </p>
           </div>

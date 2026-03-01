@@ -13,7 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .single()
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <Sidebar householdName={household?.name ?? 'Home'} householdId={householdId} />
       <MobileNav />
       <main className="md:ml-64 pb-16 md:pb-0">{children}</main>

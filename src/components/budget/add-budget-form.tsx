@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import Link from 'next/link'
 import { setBudget } from '@/lib/actions/budgets'
 import type { Tables } from '@/types/database'
 import { Button } from '@/components/ui/button'
@@ -30,6 +31,17 @@ export function AddBudgetForm({ categories, budgetedCategoryIds, month }: AddBud
   }
 
   const [state, action, pending] = useActionState<ActionState, FormData>(formAction, null)
+
+  if (categories.length === 0) {
+    return (
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <p className="text-sm text-muted-foreground">No categories yet. Create categories to start budgeting.</p>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/categories">Create Categories</Link>
+        </Button>
+      </div>
+    )
+  }
 
   if (availableCategories.length === 0) {
     return (

@@ -8,8 +8,8 @@ interface IncomeVsExpensesProps {
 
 export function IncomeVsExpenses({ data }: IncomeVsExpensesProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 className="text-sm font-semibold text-slate-700 mb-4">Income vs Expenses</h2>
+    <div className="bg-card rounded-xl border border-border p-6">
+      <h2 className="text-sm font-semibold text-foreground mb-4">Income vs Expenses</h2>
       <SimpleBarChart
         data={data}
         xKey="label"

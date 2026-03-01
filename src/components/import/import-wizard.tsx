@@ -85,20 +85,20 @@ export function ImportWizard({ accounts, categories, rules }: ImportWizardProps)
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-slate-900">Import Complete</h2>
-        <p className="text-sm text-slate-500">
-          Successfully imported <span className="font-medium text-slate-700">{importedCount}</span> transactions.
+        <h2 className="text-lg font-semibold text-foreground">Import Complete</h2>
+        <p className="text-sm text-muted-foreground">
+          Successfully imported <span className="font-medium text-foreground">{importedCount}</span> transactions.
         </p>
         <div className="flex justify-center gap-3">
           <Link
             href="/transactions"
-            className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
           >
             View Transactions
           </Link>
           <button
             onClick={() => { setStep('upload'); setParsedCSV(null); setMapping(null); setTransactions([]) }}
-            className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground px-4 py-2 rounded-lg border border-border hover:bg-muted/50 transition-colors"
           >
             Import Another File
           </button>
@@ -116,17 +116,17 @@ export function ImportWizard({ accounts, categories, rules }: ImportWizardProps)
             key={s.key}
             className={`px-3 py-1 rounded-full text-xs font-medium ${
               s.key === step
-                ? 'bg-blue-100 text-blue-700'
+                ? 'bg-primary/10 text-primary'
                 : steps.findIndex((x) => x.key === step) > steps.findIndex((x) => x.key === s.key)
                 ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-slate-100 text-slate-500'
+                : 'bg-muted text-muted-foreground'
             }`}
           >
             {s.label}
           </span>
         ))}
         {fileName && (
-          <span className="ml-auto text-xs text-slate-400 self-center truncate max-w-xs">{fileName}</span>
+          <span className="ml-auto text-xs text-muted-foreground self-center truncate max-w-xs">{fileName}</span>
         )}
       </div>
 

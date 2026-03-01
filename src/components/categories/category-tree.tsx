@@ -26,7 +26,7 @@ function CategoryNode({
   return (
     <div>
       <div
-        className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-slate-50 group"
+        className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-muted/50 group"
         style={{ paddingLeft: depth > 0 ? `${depth * 1.5 + 0.75}rem` : '0.75rem' }}
       >
         <div className="flex items-center gap-2 min-w-0">
@@ -34,7 +34,7 @@ function CategoryNode({
             <button
               type="button"
               onClick={() => setExpanded((prev) => !prev)}
-              className="text-slate-400 hover:text-slate-600 flex-shrink-0 w-4 text-xs"
+              className="text-muted-foreground hover:text-foreground flex-shrink-0 w-4 text-xs"
               aria-label={expanded ? 'Collapse' : 'Expand'}
             >
               {expanded ? '▾' : '▸'}
@@ -50,14 +50,14 @@ function CategoryNode({
             />
           )}
 
-          <span className="text-sm font-medium text-slate-800 truncate">{category.name}</span>
+          <span className="text-sm font-medium text-foreground truncate">{category.name}</span>
         </div>
 
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2">
           <button
             type="button"
             onClick={() => onEdit(category)}
-            className="text-xs text-slate-500 hover:text-blue-600 px-2 py-1 rounded transition-colors"
+            className="text-xs text-muted-foreground hover:text-primary px-2 py-1 rounded transition-colors"
             aria-label="Edit"
           >
             Edit
@@ -65,7 +65,7 @@ function CategoryNode({
           <button
             type="button"
             onClick={() => onDelete(category.id)}
-            className="text-xs text-slate-500 hover:text-red-600 px-2 py-1 rounded transition-colors"
+            className="text-xs text-muted-foreground hover:text-destructive px-2 py-1 rounded transition-colors"
             aria-label="Delete"
           >
             Delete
@@ -74,7 +74,7 @@ function CategoryNode({
       </div>
 
       {hasChildren && expanded && (
-        <div className="border-l-2 border-gray-200 ml-5">
+        <div className="border-l-2 border-border ml-5">
           {childCategories.map((child) => (
             <CategoryNode
               key={child.id}
@@ -113,14 +113,14 @@ export function CategoryTree({ categories, onEdit, onDelete }: CategoryTreeProps
 
   if (categories.length === 0) {
     return (
-      <div className="text-center py-12 text-sm text-slate-500">
+      <div className="text-center py-12 text-sm text-muted-foreground">
         No categories yet. Add your first category to start organizing your finances.
       </div>
     )
   }
 
   return (
-    <div className="divide-y divide-slate-100">
+    <div className="divide-y divide-border">
       {rootCategories.map((cat) => (
         <CategoryNode
           key={cat.id}

@@ -17,14 +17,14 @@ export function BudgetList({ budgets: initialBudgets }: BudgetListProps) {
 
   if (budgets.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
-        <p className="text-slate-500 text-sm">No budgets set for this month yet.</p>
+      <div className="bg-card rounded-xl border border-border p-10 text-center">
+        <p className="text-muted-foreground text-sm">No budgets set for this month yet.</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="bg-card rounded-xl border border-border overflow-hidden">
       {budgets.map((budget) => (
         <BudgetRow key={budget.id} budget={budget} onDelete={handleDelete} />
       ))}

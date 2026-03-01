@@ -21,11 +21,11 @@ export default async function ReportsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-      <h1 className="text-lg font-semibold text-slate-900">Reports</h1>
+      <h1 className="text-lg font-semibold text-foreground">Reports</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-4">Monthly Spending Trend</h2>
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Monthly Spending Trend</h2>
           <SimpleLineChart
             data={trends}
             xKey="label"
@@ -34,8 +34,8 @@ export default async function ReportsPage() {
           />
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-4">Income vs Expenses</h2>
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Income vs Expenses</h2>
           <SimpleBarChart
             data={trends}
             xKey="label"
@@ -48,12 +48,12 @@ export default async function ReportsPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-sm font-semibold text-slate-700 mb-4">Category Spending</h2>
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h2 className="text-sm font-semibold text-foreground mb-4">Category Spending</h2>
         {pieData.length > 0 ? (
           <SimplePieChart data={pieData} height={320} />
         ) : (
-          <p className="text-sm text-slate-400">No expenses this month.</p>
+          <p className="text-sm text-muted-foreground">No expenses this month.</p>
         )}
       </div>
     </div>

@@ -34,11 +34,11 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-slate-900">{household.name} Dashboard</h1>
+        <h1 className="text-lg font-semibold text-foreground">{household.name} Dashboard</h1>
         <form action={signOut}>
           <button
             type="submit"
-            className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Sign out
           </button>

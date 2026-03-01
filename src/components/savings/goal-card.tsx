@@ -41,27 +41,27 @@ export function GoalCard({ goal }: GoalCardProps) {
   const isReached = goal.current_amount >= goal.target_amount
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4">
+    <div className="bg-card rounded-xl border border-border p-4">
       <div className="flex items-start justify-between mb-3">
-        <h3 className="text-sm font-semibold text-slate-900">{goal.name}</h3>
-        <span className="text-sm font-semibold text-slate-700">{percentage}%</span>
+        <h3 className="text-sm font-semibold text-foreground">{goal.name}</h3>
+        <span className="text-sm font-semibold text-foreground">{percentage}%</span>
       </div>
 
       {/* Inline progress bar with inverted savings colors */}
-      <div className="bg-slate-100 rounded-full h-2 mb-3">
+      <div className="bg-muted rounded-full h-2 mb-3">
         <div
           className={`${fillColor} h-2 rounded-full transition-all duration-300`}
           style={{ width: `${percentage}%` }}
         />
       </div>
 
-      <div className="flex items-center justify-between text-xs text-slate-500 mb-3">
+      <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
         <span>{formatKES(goal.current_amount)}</span>
         <span>{formatKES(goal.target_amount)}</span>
       </div>
 
       {goal.deadline && (
-        <div className="text-xs text-slate-500 mb-3 space-y-0.5">
+        <div className="text-xs text-muted-foreground mb-3 space-y-0.5">
           {daysRemaining !== null && (
             <p>
               {daysRemaining > 0 ? `${daysRemaining} days remaining` : 'Deadline passed'}
@@ -78,13 +78,13 @@ export function GoalCard({ goal }: GoalCardProps) {
       <div className="flex gap-2 mt-3">
         <Link
           href={`/savings/${goal.id}/contribute`}
-          className="flex-1 text-center bg-blue-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-blue-700 transition-colors"
+          className="flex-1 text-center bg-primary text-primary-foreground rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
         >
           Contribute
         </Link>
         <Link
           href={`/savings/${goal.id}`}
-          className="flex-1 text-center rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+          className="flex-1 text-center rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
         >
           Details
         </Link>

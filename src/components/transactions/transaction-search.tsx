@@ -51,7 +51,7 @@ export function TransactionSearch({ accounts, categories }: TransactionSearchPro
           placeholder="Search transactions by notes..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded-lg border border-input bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
         />
         {isActive && (
           <button
@@ -59,7 +59,7 @@ export function TransactionSearch({ accounts, categories }: TransactionSearchPro
               setQuery('')
               setResults([])
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-sm"
           >
             Clear
           </button>
@@ -67,23 +67,23 @@ export function TransactionSearch({ accounts, categories }: TransactionSearchPro
       </div>
 
       {isPending && (
-        <p className="text-sm text-slate-400">Searching...</p>
+        <p className="text-sm text-muted-foreground">Searching...</p>
       )}
 
       {isActive && !isPending && results.length === 0 && debouncedQuery && (
-        <p className="text-sm text-slate-400">No transactions found for &quot;{debouncedQuery}&quot;</p>
+        <p className="text-sm text-muted-foreground">No transactions found for &quot;{debouncedQuery}&quot;</p>
       )}
 
       {results.length > 0 && (
-        <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
-          <div className="px-4 py-2 bg-slate-50 rounded-t-xl">
-            <p className="text-xs font-medium text-slate-500">{results.length} result{results.length !== 1 ? 's' : ''}</p>
+        <div className="bg-card rounded-xl border border-border divide-y divide-border">
+          <div className="px-4 py-2 bg-muted/50 rounded-t-xl">
+            <p className="text-xs font-medium text-muted-foreground">{results.length} result{results.length !== 1 ? 's' : ''}</p>
           </div>
           {results.map((tx) => (
             <div key={tx.id} className="px-4 py-3 flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-900 truncate">{tx.notes || 'No notes'}</p>
-                <p className="text-xs text-slate-400">
+                <p className="text-sm text-foreground truncate">{tx.notes || 'No notes'}</p>
+                <p className="text-xs text-muted-foreground">
                   {tx.date} &middot; {getAccountName(tx.account_id)} &middot; {getCategoryName(tx.category_id)}
                 </p>
               </div>

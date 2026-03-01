@@ -25,30 +25,30 @@ export function DebtSummary({ debts }: DebtSummaryProps) {
   )
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
+    <div className="bg-card rounded-xl border border-border p-6">
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
         <div>
-          <p className="text-sm text-slate-500 mb-1">Total Debt</p>
-          <p className="text-2xl font-semibold text-slate-900">{formatKES(totalBalance)}</p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-sm text-muted-foreground mb-1">Total Debt</p>
+          <p className="text-2xl font-semibold text-foreground">{formatKES(totalBalance)}</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">
             {debts.length} debt{debts.length !== 1 ? 's' : ''}
           </p>
         </div>
 
         <div>
-          <p className="text-sm text-slate-500 mb-1">Total Min. Payments</p>
-          <p className="text-2xl font-semibold text-slate-900">{formatKES(totalMinPayment)}</p>
-          <p className="text-xs text-slate-400 mt-1">per month</p>
+          <p className="text-sm text-muted-foreground mb-1">Total Min. Payments</p>
+          <p className="text-2xl font-semibold text-foreground">{formatKES(totalMinPayment)}</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">per month</p>
         </div>
 
         <div className="col-span-2 sm:col-span-1">
-          <p className="text-sm text-slate-500 mb-2">By Type</p>
+          <p className="text-sm text-muted-foreground mb-2">By Type</p>
           <div className="space-y-1">
             {(Object.entries(countByType) as [Tables<'debts'>['type'], number][]).map(
               ([type, count]) => (
                 <div key={type} className="flex items-center justify-between">
-                  <span className="text-xs text-slate-600">{TYPE_LABELS[type]}</span>
-                  <span className="text-xs font-medium text-slate-900">{count}</span>
+                  <span className="text-xs text-muted-foreground">{TYPE_LABELS[type]}</span>
+                  <span className="text-xs font-medium text-foreground">{count}</span>
                 </div>
               )
             )}

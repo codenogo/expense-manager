@@ -56,19 +56,19 @@ export function CSVUpload({ onParsed }: CSVUploadProps) {
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
           isDragging
-            ? 'border-blue-400 bg-blue-50'
-            : 'border-slate-300 bg-white hover:border-blue-400 hover:bg-slate-50'
+            ? 'border-primary bg-primary/5'
+            : 'border-border bg-card hover:border-primary hover:bg-muted/50'
         }`}
       >
         <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
-            <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+            <svg className="w-6 h-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-700">Drop your CSV file here, or click to browse</p>
-            <p className="text-xs text-slate-500 mt-1">Supports standard bank export CSV files</p>
+            <p className="text-sm font-medium text-foreground">Drop your CSV file here, or click to browse</p>
+            <p className="text-xs text-muted-foreground mt-1">Supports standard bank export CSV files</p>
           </div>
         </div>
       </div>

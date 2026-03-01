@@ -10,13 +10,13 @@ export default function AppError({
   return (
     <div className="min-h-[50vh] flex items-center justify-center px-4">
       <div className="text-center max-w-md">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">Something went wrong</h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-2">Something went wrong</h2>
+        <p className="text-sm text-muted-foreground mb-6">
           {error.message || 'An unexpected error occurred. Please try again.'}
         </p>
         <button
           onClick={reset}
-          className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 transition-colors"
+          className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           Try again
         </button>

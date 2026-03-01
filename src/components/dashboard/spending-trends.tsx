@@ -8,8 +8,8 @@ interface SpendingTrendsProps {
 
 export function SpendingTrends({ data }: SpendingTrendsProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 className="text-sm font-semibold text-slate-700 mb-4">Monthly Spending</h2>
+    <div className="bg-card rounded-xl border border-border p-6">
+      <h2 className="text-sm font-semibold text-foreground mb-4">Monthly Spending</h2>
       <SimpleBarChart
         data={data}
         xKey="label"

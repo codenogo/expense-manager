@@ -35,16 +35,16 @@ export function UpcomingBills({ items, categories }: UpcomingBillsProps) {
 
   if (upcomingItems.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-sm font-semibold text-slate-700 mb-3">Upcoming Bills</h2>
-        <p className="text-sm text-slate-400">No bills due in the next 7 days.</p>
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h2 className="text-sm font-semibold text-foreground mb-3">Upcoming Bills</h2>
+        <p className="text-sm text-muted-foreground">No bills due in the next 7 days.</p>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 className="text-sm font-semibold text-slate-700 mb-4">Upcoming Bills</h2>
+    <div className="bg-card rounded-xl border border-border p-6">
+      <h2 className="text-sm font-semibold text-foreground mb-4">Upcoming Bills</h2>
       <div className="space-y-3">
         {upcomingItems.map((item) => {
           const daysUntil = getDaysUntilDue(item.next_due_date)
@@ -54,16 +54,16 @@ export function UpcomingBills({ items, categories }: UpcomingBillsProps) {
           return (
             <div key={item.id} className="flex items-center justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-900 truncate">{item.name}</p>
+                <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-slate-500">{formatDueDate(item.next_due_date)}</span>
+                  <span className="text-xs text-muted-foreground">{formatDueDate(item.next_due_date)}</span>
                   {category && (
-                    <span className="text-xs text-slate-400">{category.name}</span>
+                    <span className="text-xs text-muted-foreground/70">{category.name}</span>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-sm font-semibold text-slate-800">{formatKES(item.amount)}</span>
+                <span className="text-sm font-semibold text-foreground">{formatKES(item.amount)}</span>
                 {isOverdue ? (
                   <span className="bg-red-50 text-red-700 rounded-full px-2 py-0.5 text-xs font-medium">
                     Overdue

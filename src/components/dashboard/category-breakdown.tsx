@@ -11,9 +11,9 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#f87171', '#64748b'
 export function CategoryBreakdown({ breakdown }: CategoryBreakdownProps) {
   if (breakdown.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-sm font-semibold text-slate-700 mb-3">Spending by Category</h2>
-        <p className="text-sm text-slate-400">No expenses this month.</p>
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h2 className="text-sm font-semibold text-foreground mb-3">Spending by Category</h2>
+        <p className="text-sm text-muted-foreground">No expenses this month.</p>
       </div>
     )
   }
@@ -25,8 +25,8 @@ export function CategoryBreakdown({ breakdown }: CategoryBreakdownProps) {
   }))
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 className="text-sm font-semibold text-slate-700 mb-4">Spending by Category</h2>
+    <div className="bg-card rounded-xl border border-border p-6">
+      <h2 className="text-sm font-semibold text-foreground mb-4">Spending by Category</h2>
       <SimplePieChart data={pieData} height={280} />
     </div>
   )

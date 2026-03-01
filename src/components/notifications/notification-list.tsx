@@ -18,7 +18,7 @@ function timeAgo(dateStr: string): string {
 const TYPE_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   bill_overdue: { bg: 'bg-red-50', text: 'text-red-700', label: 'Overdue' },
   budget_overspend: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Overspent' },
-  low_balance: { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Low Balance' },
+  low_balance: { bg: 'bg-primary/10', text: 'text-primary', label: 'Low Balance' },
 }
 
 interface NotificationListProps {
@@ -31,13 +31,13 @@ export function NotificationList({ notifications, onMarkRead, onMarkAllRead }: N
   const hasUnread = notifications.some((n) => !n.read)
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl border border-slate-200 shadow-lg z-50">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-900">Notifications</h3>
+    <div className="absolute right-0 top-full mt-2 w-80 bg-card rounded-xl border border-border shadow-lg z-50">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
         {hasUnread && (
           <button
             onClick={onMarkAllRead}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            className="text-xs text-primary hover:text-primary/80 font-medium"
           >
             Mark all read
           </button>
@@ -47,7 +47,7 @@ export function NotificationList({ notifications, onMarkRead, onMarkAllRead }: N
       <div className="max-h-96 overflow-y-auto">
         {notifications.length === 0 ? (
           <div className="px-4 py-8 text-center">
-            <p className="text-sm text-slate-400">No notifications yet.</p>
+            <p className="text-sm text-muted-foreground">No notifications yet.</p>
           </div>
         ) : (
           notifications.map((n) => {
@@ -55,7 +55,7 @@ export function NotificationList({ notifications, onMarkRead, onMarkAllRead }: N
             return (
               <div
                 key={n.id}
-                className={`px-4 py-3 border-b border-slate-50 last:border-b-0 ${
+                className={`px-4 py-3 border-b border-border/50 last:border-b-0 ${
                   n.read ? 'opacity-60' : ''
                 }`}
               >
@@ -67,15 +67,15 @@ export function NotificationList({ notifications, onMarkRead, onMarkAllRead }: N
                       >
                         {style.label}
                       </span>
-                      <span className="text-[10px] text-slate-400">{timeAgo(n.created_at)}</span>
+                      <span className="text-[10px] text-muted-foreground">{timeAgo(n.created_at)}</span>
                     </div>
-                    <p className="text-sm font-medium text-slate-800 truncate">{n.title}</p>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.body}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
                   </div>
                   {!n.read && (
                     <button
                       onClick={() => onMarkRead(n.id)}
-                      className="shrink-0 mt-1 w-2 h-2 rounded-full bg-blue-500 hover:bg-blue-700"
+                      className="shrink-0 mt-1 w-2 h-2 rounded-full bg-primary hover:bg-primary/80"
                       aria-label="Mark as read"
                     />
                   )}

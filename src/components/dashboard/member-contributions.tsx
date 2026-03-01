@@ -21,20 +21,20 @@ export function MemberContributions({ members, transactions }: MemberContributio
     .sort((a, b) => b.net - a.net)
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6">
-      <h2 className="text-sm font-semibold text-slate-700 mb-4">Member Contributions</h2>
+    <div className="bg-card rounded-xl border border-border p-6">
+      <h2 className="text-sm font-semibold text-foreground mb-4">Member Contributions</h2>
       {memberStats.length === 0 ? (
-        <p className="text-sm text-slate-400">No members found.</p>
+        <p className="text-sm text-muted-foreground">No members found.</p>
       ) : (
         <div className="space-y-3">
           {memberStats.map((m) => (
             <div
               key={m.id}
-              className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0"
+              className="flex items-center justify-between py-2 border-b border-border last:border-0"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-xs font-semibold text-blue-700">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-xs font-semibold text-primary">
                     {m.full_name
                       .split(' ')
                       .map((n) => n[0])
@@ -43,7 +43,7 @@ export function MemberContributions({ members, transactions }: MemberContributio
                       .slice(0, 2)}
                   </span>
                 </div>
-                <span className="text-sm font-medium text-slate-900">{m.full_name}</span>
+                <span className="text-sm font-medium text-foreground">{m.full_name}</span>
               </div>
               <div className="flex items-center gap-4 text-xs">
                 <span className="text-emerald-600">{formatKES(m.income)}</span>

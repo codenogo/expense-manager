@@ -85,7 +85,7 @@ export function NotificationBell({ householdId }: { householdId: string }) {
     <div ref={ref} className="relative">
       <button
         onClick={handleToggle}
-        className="relative p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+        className="relative p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         aria-label="Notifications"
       >
         <svg

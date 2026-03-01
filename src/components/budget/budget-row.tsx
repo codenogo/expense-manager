@@ -24,23 +24,23 @@ export function BudgetRow({ budget, onDelete }: BudgetRowProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2 px-4 py-4 border-b border-slate-100 last:border-b-0">
+    <div className="flex flex-col gap-2 px-4 py-4 border-b border-border last:border-b-0">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-slate-900">{budget.category_name}</span>
+        <span className="text-sm font-medium text-foreground">{budget.category_name}</span>
         <button
           onClick={handleDelete}
-          className="text-xs text-slate-400 hover:text-red-500 transition-colors"
+          className="text-xs text-muted-foreground hover:text-destructive transition-colors"
           aria-label={`Delete ${budget.category_name} budget`}
         >
           Remove
         </button>
       </div>
       <ProgressBar value={budget.spent} max={budget.amount} />
-      <div className="flex items-center justify-between text-xs text-slate-500">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>
-          {formatKES(budget.spent)} <span className="text-slate-400">of</span> {formatKES(budget.amount)}
+          {formatKES(budget.spent)} <span className="text-muted-foreground/70">of</span> {formatKES(budget.amount)}
         </span>
-        <span className={isOver ? 'text-red-500 font-medium' : 'text-slate-500'}>
+        <span className={isOver ? 'text-red-500 font-medium' : 'text-muted-foreground'}>
           {isOver ? `${formatKES(Math.abs(remaining))} over` : `${formatKES(remaining)} left`}
         </span>
       </div>
