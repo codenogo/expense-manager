@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "feature": "debt-account-redesign",
+  "planNumber": "02",
+  "goal": "Auto-create and sync a system-managed loan account when debts are created, updated, or deleted",
+  "tasks": [
+    {
+      "name": "Create loan account helper functions",
+      "files": ["src/lib/actions/loan-account.ts"],
+      "microSteps": [
+        "Create new server action file src/lib/actions/loan-account.ts",
+        "Implement ensureLoanAccount(householdId): finds or creates system-managed loan account, returns account id",
+        "Implement syncLoanAccountBalance(householdId): queries sum of all debt balances, updates loan account balance to match",
+        "Implement getLoanAccount(householdId): returns the system-managed loan account or null"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Server actions with Supabase dependency — no unit test infrastructure for DB-dependent actions in this project"
+      },
+      "action": "Create src/lib/actions/loan-account.ts with 'use server' directive:\n\n1. ensureLoanAccount(householdId: string): Promise<string>\n   - Query accounts where household_id = householdId AND is_system_managed = true AND type = 'loan'\n   - If found, return the account id\n   - If not found, insert new account: { household_id, name: 'Total Loans', type: 'loan', balance: 0, is_system_managed: true }\n   - Return the new account id\n\n2. syncLoanAccountBalance(householdId: string): Promise<void>\n   - Query sum of all debt balances for the household: SELECT COALESCE(SUM(balance), 0) FROM debts WHERE household_id = ?\n   - Get or create loan account via ensureLoanAccount\n   - Update loan account balance to the sum\n   - Call updateTag for accounts and dashboard cache invalidation\n\n3. getLoanAccount(householdId: string): Promise<Tables<'accounts'> | null>\n   - Query accounts where household_id AND is_system_managed = true AND type = 'loan'\n   - Return data or null\n\nUse createClient() from @/lib/supabase/server. Follow patterns from existing action files.",
+      "verify": ["npx tsc --noEmit"]
+    },
+    {
+      "name": "Wire debt CRUD actions to auto-manage loan account",
+      "files": ["src/lib/actions/debts.ts"],
+      "microSteps": [
+        "Import syncLoanAccountBalance from loan-account.ts",
+        "In createDebt: after successful insert, call syncLoanAccountBalance(householdId)",
+        "In updateDebt: after successful update, call syncLoanAccountBalance(householdId)",
+        "In deleteDebt: after successful delete, call syncLoanAccountBalance(householdId)",
+        "Verify all redirect paths still work correctly"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Server action integration — verified by build and type check"
+      },
+      "action": "Update src/lib/actions/debts.ts:\n\n1. Import { syncLoanAccountBalance } from '@/lib/actions/loan-account'\n\n2. In createDebt(): after the successful insert (before redirect), call:\n   await syncLoanAccountBalance(householdId)\n\n3. In updateDebt(): after the successful update (before redirect), call:\n   await syncLoanAccountBalance(householdId)\n\n4. In deleteDebt(): after the successful delete (before redirect), call:\n   await syncLoanAccountBalance(householdId)\n\nKeep existing error handling and redirect behavior intact.",
+      "verify": ["npx tsc --noEmit"],
+      "blockedBy": [0]
+    },
+    {
+      "name": "Protect system-managed loan accounts from user mutation",
+      "files": ["src/lib/actions/accounts.ts", "src/components/accounts/account-form.tsx"],
+      "microSteps": [
+        "In updateAccount: add guard — if account is_system_managed, redirect with error",
+        "In deleteAccount: add guard — if account is_system_managed, redirect with error",
+        "In AccountForm: filter out 'loan' from type options when creating new account",
+        "In AccountForm: if editing a system-managed account, make fields read-only"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Server action guard + UI restriction — verified by build"
+      },
+      "action": "1. Update src/lib/actions/accounts.ts:\n\n   In updateAccount(): before the update query, fetch the account and check is_system_managed:\n   ```\n   const { data: existing } = await supabase.from('accounts').select('is_system_managed').eq('id', id).eq('household_id', householdId).single()\n   if (existing?.is_system_managed) {\n     redirect('/accounts?error=Cannot+edit+system-managed+account')\n   }\n   ```\n\n   In deleteAccount(): same guard:\n   ```\n   const { data: existing } = await supabase.from('accounts').select('is_system_managed').eq('id', id).eq('household_id', householdId).single()\n   if (existing?.is_system_managed) {\n     redirect('/accounts?error=Cannot+delete+system-managed+account')\n   }\n   ```\n\n   In createAccount(): add guard to prevent creating loan type:\n   ```\n   if (type === 'loan') {\n     redirect('/accounts?error=Loan+accounts+are+automatically+managed')\n   }\n   ```\n\n2. Update src/components/accounts/account-form.tsx:\n   - Filter 'loan' out of ACCOUNT_TYPE_LABELS when rendering type options (only in create mode)\n   - If account?.is_system_managed is true, show all fields as disabled/read-only with an info message",
+      "verify": ["npx tsc --noEmit", "npm run build"],
+      "blockedBy": [1]
+    }
+  ],
+  "planVerify": ["npx tsc --noEmit", "npm run build"],
+  "commitMessage": "feat(debts): auto-manage loan account on debt CRUD and protect from user mutation",
+  "timestamp": "2026-03-01T00:00:00Z"
+}

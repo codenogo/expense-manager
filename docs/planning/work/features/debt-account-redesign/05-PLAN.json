@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "feature": "debt-account-redesign",
+  "planNumber": "05",
+  "goal": "Build amortization table and payment history components for the debt detail page",
+  "tasks": [
+    {
+      "name": "Create AmortizationTable component",
+      "files": ["src/components/debts/amortization-table.tsx"],
+      "microSteps": [
+        "Create client component that accepts debt data (balance, interest_rate, min_payment)",
+        "Call calculateAmortization to generate the schedule",
+        "Render a scrollable table with columns: Month, Payment, Principal, Interest, Remaining Balance",
+        "Show summary row at top: total months, total interest, total paid",
+        "Format all amounts with Currency component or KES formatting",
+        "Handle edge case: no interest rate — show simple payoff table",
+        "Handle edge case: no min_payment — show message that payment amount is needed"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component — verified by build"
+      },
+      "action": "Create src/components/debts/amortization-table.tsx as a client component:\n\nProps:\n```typescript\ninterface AmortizationTableProps {\n  balance: number        // cents\n  interestRate: number | null  // annual %\n  minPayment: number | null    // cents\n}\n```\n\nBehavior:\n- If no interest_rate or no min_payment, show info message: 'Set interest rate and minimum payment to see amortization schedule'\n- Call calculateAmortization(balance, interestRate, minPayment)\n- Show summary card: X months to payoff, KES total interest, KES total paid\n- Scrollable table (max-h with overflow-y-auto) with columns:\n  - Month # (1, 2, 3...)\n  - Payment (formatted KES)\n  - Principal (formatted KES)\n  - Interest (formatted KES)\n  - Remaining Balance (formatted KES)\n- Use existing design tokens (bg-card, text-foreground, etc.)\n- Highlight current month or first unpaid month",
+      "verify": ["npx tsc --noEmit"]
+    },
+    {
+      "name": "Create PaymentHistory component",
+      "files": ["src/components/debts/payment-history.tsx"],
+      "microSteps": [
+        "Create server component that accepts debt_payments array",
+        "Render a list/table of past payments",
+        "Show date, amount, and notes for each payment",
+        "Show empty state when no payments exist",
+        "Format amounts with Currency component"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component — verified by build"
+      },
+      "action": "Create src/components/debts/payment-history.tsx:\n\nProps:\n```typescript\ninterface PaymentHistoryProps {\n  payments: Tables<'debt_payments'>[]\n}\n```\n\nBehavior:\n- If payments is empty, show: 'No payments recorded yet'\n- Otherwise render a clean list/table:\n  - Date (formatted)\n  - Amount (KES formatted)\n  - Notes (if present)\n- Most recent payments first (already ordered by the action)\n- Use existing card styling (bg-card rounded-xl shadow-sm p-6)\n- Show total paid at the bottom (sum of all payment amounts)",
+      "verify": ["npx tsc --noEmit"],
+      "blockedBy": [0]
+    },
+    {
+      "name": "Update debt detail page with new components and mandatory account",
+      "files": ["src/app/(app)/debts/[id]/page.tsx"],
+      "microSteps": [
+        "Import AmortizationTable, PaymentHistory, and getDebtPayments",
+        "Fetch debt payments in the page's data loading (add to Promise.all)",
+        "Add AmortizationTable section between the form and record payment sections",
+        "Add PaymentHistory section after the record payment section",
+        "Make account_id required in the record payment form (remove 'None' option, add required attribute)",
+        "Add notes field to the record payment form"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Server component page assembly — verified by build"
+      },
+      "action": "Update src/app/(app)/debts/[id]/page.tsx:\n\n1. Add imports:\n   - AmortizationTable from '@/components/debts/amortization-table'\n   - PaymentHistory from '@/components/debts/payment-history'\n   - getDebtPayments from '@/lib/actions/debts'\n\n2. Update data fetching:\n   ```\n   const [debt, accounts, payments] = await Promise.all([\n     getDebt(id),\n     getAccounts(),\n     getDebtPayments(id),\n   ])\n   ```\n\n3. Page layout (in order):\n   - Header (existing)\n   - DebtForm (existing edit form)\n   - NEW: AmortizationTable section with debt.balance, debt.interest_rate, debt.min_payment\n   - Record Payment form — update:\n     - Remove `<option value=\"\">None</option>` from account select\n     - Add `required` to account select\n     - Add notes textarea field\n     - Update label to remove '(optional)' from account\n   - NEW: PaymentHistory section with payments data\n   - Danger zone (existing)\n\n4. Filter accounts in the record payment select to exclude system-managed loan accounts:\n   ```\n   accounts.filter(a => !a.is_system_managed)\n   ```",
+      "verify": ["npx tsc --noEmit", "npm run build"],
+      "blockedBy": [0, 1]
+    }
+  ],
+  "planVerify": ["npx tsc --noEmit", "npm run build"],
+  "commitMessage": "feat(debts): add amortization table, payment history, and mandatory account to debt detail page",
+  "timestamp": "2026-03-01T00:00:00Z"
+}

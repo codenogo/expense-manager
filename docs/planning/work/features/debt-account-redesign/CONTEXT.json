@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "feature": "debt-account-redesign",
+  "displayName": "Debt Section & Account Loan Redesign",
+  "decisions": [
+    {
+      "area": "data-model",
+      "decision": "Accounts = current state snapshot; Debts = full liability management",
+      "rationale": "Accounts show balances at a glance. Debts track the full lifecycle: original amount, interest rate, payment schedule, payoff progress. No overlap in purpose."
+    },
+    {
+      "area": "data-model",
+      "decision": "Auto-managed loan account (event-driven)",
+      "rationale": "When the first debt is created, the system auto-creates a single 'loan' type account. Its balance = sum of all debt balances. Users cannot manually create loan accounts. On debt creation → add to loan balance. On payment → subtract from loan balance. On debt deletion → subtract from loan balance. If all debts are deleted, the loan account balance goes to zero (or optionally gets deleted)."
+    },
+    {
+      "area": "data-model",
+      "decision": "New debt_payments table for payment audit trail",
+      "rationale": "Current system has no payment history — recordPayment just decrements the balance. A debt_payments table (debt_id, amount, date, account_id, transaction_id, notes, created_at) provides full traceability and enables payment history views."
+    },
+    {
+      "area": "interest",
+      "decision": "Display-only amortization projection with manual payment confirmation",
+      "rationale": "The system calculates and displays a full amortization table based on interest rate, balance, and min payment. This is view-only — the system does NOT auto-apply interest. When a payment is due, the user either confirms the projected amount or edits it (for partial/extra repayments). After each recorded payment, the system recalculates the remaining schedule."
+    },
+    {
+      "area": "payment-flow",
+      "decision": "Payments always create expense transaction + update source account",
+      "rationale": "Every debt payment must specify a source account. The system creates an expense transaction on that account and deducts from the account balance. This replaces the current optional account_id behavior, ensuring all payments are fully tracked in the financial record."
+    },
+    {
+      "area": "ux",
+      "decision": "Full amortization table (view-only) + record payment button",
+      "rationale": "Debt detail page shows the projected amortization schedule as a table (month, payment, principal, interest, remaining balance). A separate 'Record Payment' action lets users log actual payments. The table recalculates after each payment."
+    },
+    {
+      "area": "atomicity",
+      "decision": "Fix payment atomicity with Supabase RPC or sequential operations",
+      "rationale": "Current recordPayment has a race condition: it reads account balance then updates it in separate calls. This should use a Supabase RPC function or at minimum sequential read-update to prevent concurrent payment issues."
+    }
+  ],
+  "constraints": [
+    "Loan account is system-managed — users cannot create, edit name/type, or delete it directly",
+    "Loan account balance must always equal the sum of all debt balances in the household",
+    "All debt payments must specify a source account (no more optional account_id)",
+    "Amortization table is projection-only — no auto-interest-accrual or auto-payments",
+    "debt_payments table must reference both debt_id and the generated transaction_id for traceability",
+    "Existing debts and their current balances must be preserved during migration",
+    "All monetary values remain in KES cents (bigint)"
+  ],
+  "openQuestions": [
+    "Should the loan account be deleted when all debts are removed, or kept at zero balance?",
+    "Should we support multiple loan accounts (e.g., per-lender grouping) in the future?",
+    "How should the amortization handle debts with no interest rate (informal loans)?"
+  ],
+  "relatedCode": [
+    "src/lib/actions/debts.ts",
+    "src/lib/actions/accounts.ts",
+    "src/lib/debt-calculator.ts",
+    "src/app/(app)/debts/page.tsx",
+    "src/app/(app)/debts/[id]/page.tsx",
+    "src/app/(app)/accounts/page.tsx",
+    "src/app/(app)/accounts/[id]/page.tsx",
+    "src/components/debts/debt-form.tsx",
+    "src/components/debts/delete-debt-button.tsx",
+    "src/components/debts/debt-card.tsx",
+    "src/components/accounts/account-card.tsx",
+    "supabase/migrations/00001_initial_schema.sql"
+  ],
+  "timestamp": "2026-03-01T00:00:00Z"
+}

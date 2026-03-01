@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "feature": "debt-account-redesign",
+  "planNumber": "03",
+  "goal": "Refactor debt payment recording to use debt_payments table with mandatory account and full transaction tracking",
+  "tasks": [
+    {
+      "name": "Refactor recordPayment to use debt_payments table",
+      "files": ["src/lib/actions/debts.ts", "src/lib/actions/loan-account.ts"],
+      "microSteps": [
+        "Make account_id mandatory in recordPayment (remove the optional branch)",
+        "After fetching debt balance, create debt_payments record",
+        "Create expense transaction on the source account",
+        "Update debt_payments record with transaction_id",
+        "Update debt balance (subtract payment)",
+        "Update account balance (subtract payment)",
+        "Call syncLoanAccountBalance to keep loan account in sync",
+        "Invalidate caches (dashboard, accounts, debts)"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Server action with Supabase dependency — verified by build and type check"
+      },
+      "action": "Refactor recordPayment in src/lib/actions/debts.ts:\n\n1. Make account_id required (remove the 'else' branch that only updates debt balance):\n   ```\n   const accountId = formData.get('account_id') as string\n   if (!accountId) throw new Error('Account is required for debt payments')\n   ```\n\n2. Restructure the flow (sequential for atomicity):\n   a. Fetch debt balance (existing)\n   b. Calculate newBalance = debt.balance - amountCents\n   c. Create expense transaction:\n      ```\n      const { data: tx } = await supabase.from('transactions').insert({ ... }).select('id').single()\n      ```\n   d. Create debt_payments record:\n      ```\n      await supabase.from('debt_payments').insert({\n        household_id: householdId,\n        debt_id: id,\n        account_id: accountId,\n        transaction_id: tx.id,\n        amount: amountCents,\n        date: today,\n        notes: formData.get('notes') as string || 'Debt payment',\n      })\n      ```\n   e. Update debt balance\n   f. Update account balance (fetch current, subtract)\n   g. Call syncLoanAccountBalance(householdId)\n   h. Invalidate caches: updateTag for dashboard, accounts\n\n3. Keep all error handling (throw on failures, no silent swallowing)",
+      "verify": ["npx tsc --noEmit"]
+    },
+    {
+      "name": "Create getDebtPayments action for payment history",
+      "files": ["src/lib/actions/debts.ts"],
+      "microSteps": [
+        "Add getDebtPayments function that fetches all payments for a debt_id",
+        "Order by date descending (most recent first)",
+        "Return typed array of debt_payments rows"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Simple query action — verified by type check"
+      },
+      "action": "Add to src/lib/actions/debts.ts:\n\n```typescript\nexport async function getDebtPayments(debtId: string): Promise<Tables<'debt_payments'>[]> {\n  const supabase = await createClient()\n  const householdId = await getHouseholdId()\n\n  const { data, error } = await supabase\n    .from('debt_payments')\n    .select('*')\n    .eq('debt_id', debtId)\n    .eq('household_id', householdId)\n    .order('date', { ascending: false })\n    .order('created_at', { ascending: false })\n\n  if (error) throw new Error(error.message)\n\n  return data ?? []\n}\n```",
+      "verify": ["npx tsc --noEmit"],
+      "blockedBy": [0]
+    }
+  ],
+  "planVerify": ["npx tsc --noEmit", "npm run build"],
+  "commitMessage": "feat(debts): refactor payment recording with debt_payments table and mandatory account",
+  "timestamp": "2026-03-01T00:00:00Z"
+}

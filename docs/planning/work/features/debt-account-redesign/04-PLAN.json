@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 2,
+  "feature": "debt-account-redesign",
+  "planNumber": "04",
+  "goal": "Implement amortization schedule calculator for individual debts",
+  "tasks": [
+    {
+      "name": "Implement calculateAmortization function",
+      "files": ["src/lib/debt-calculator.ts"],
+      "microSteps": [
+        "Define AmortizationEntry interface (month, payment, principal, interest, remainingBalance)",
+        "Define AmortizationResult interface (entries[], totalInterest, totalPaid, monthsToPayoff)",
+        "Implement calculateAmortization(balance, interestRate, minPayment) function",
+        "Handle edge case: zero interest rate (informal loans) — straight division",
+        "Handle edge case: payment less than monthly interest (will never pay off — cap at max months)",
+        "Handle edge case: zero balance — return empty schedule"
+      ],
+      "tdd": {
+        "required": true,
+        "failingVerify": ["npm test -- --run src/lib/debt-calculator.test.ts"],
+        "passingVerify": ["npm test -- --run src/lib/debt-calculator.test.ts"]
+      },
+      "action": "Add to src/lib/debt-calculator.ts:\n\n1. New types:\n```typescript\nexport interface AmortizationEntry {\n  month: number\n  payment: number      // cents\n  principal: number    // cents\n  interest: number     // cents\n  remainingBalance: number // cents\n}\n\nexport interface AmortizationResult {\n  entries: AmortizationEntry[]\n  totalInterest: number  // cents\n  totalPaid: number      // cents\n  monthsToPayoff: number\n}\n```\n\n2. Function:\n```typescript\nexport function calculateAmortization(\n  balance: number,      // cents\n  interestRate: number, // annual percentage (e.g., 15 for 15%)\n  monthlyPayment: number // cents\n): AmortizationResult\n```\n\nAlgorithm:\n- If balance <= 0, return empty result\n- If interestRate is 0: straight division (balance / monthlyPayment months, no interest)\n- Monthly simulation (cap 1200 months):\n  - Calculate monthly interest: balance * (interestRate / 12 / 100)\n  - Principal = min(monthlyPayment - interest, balance + interest) — if payment > balance+interest, pay only what's needed\n  - New balance = balance + interest - payment\n  - If balance <= 0, mark paid off\n  - Push entry to array\n- Return entries + totals",
+      "verify": ["npm test -- --run src/lib/debt-calculator.test.ts"]
+    },
+    {
+      "name": "Write tests for amortization calculator",
+      "files": ["src/lib/debt-calculator.test.ts"],
+      "microSteps": [
+        "Add test: zero balance returns empty result",
+        "Add test: zero interest rate produces straight payoff schedule",
+        "Add test: standard amortization with 15% interest produces correct month count",
+        "Add test: payment less than monthly interest caps at max months",
+        "Add test: large payment pays off in 1 month",
+        "Add test: entries sum of principal + interest equals payment for each row",
+        "Add test: final entry has remainingBalance of 0"
+      ],
+      "tdd": {
+        "required": true,
+        "failingVerify": ["npm test -- --run src/lib/debt-calculator.test.ts"],
+        "passingVerify": ["npm test -- --run src/lib/debt-calculator.test.ts"]
+      },
+      "action": "Add amortization tests to src/lib/debt-calculator.test.ts:\n\nNew describe block 'calculateAmortization' with tests for:\n1. Zero balance → empty entries, all totals zero\n2. Zero interest → months = ceil(balance/payment), no interest in entries\n3. Standard case: 100,000 KES (10,000,000 cents) at 15% with 5,000 KES/month payment → verify month count is reasonable (~24 months), total interest > 0\n4. Payment < monthly interest → caps at 1200 months (never pays off)\n5. Single large payment → 1 entry, pays off immediately\n6. Each entry: principal + interest should equal payment (except possibly the last entry)\n7. Last entry remainingBalance should be 0 for payable debts\n\nWrite tests FIRST (TDD red phase), then implement the function.",
+      "verify": ["npm test -- --run src/lib/debt-calculator.test.ts"]
+    }
+  ],
+  "planVerify": ["npm test -- --run src/lib/debt-calculator.test.ts"],
+  "commitMessage": "feat(debts): add amortization schedule calculator with tests",
+  "timestamp": "2026-03-01T00:00:00Z"
+}

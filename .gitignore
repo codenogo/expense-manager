@@ -22,6 +22,11 @@
 # Task description cache (generated, not source)
 .cnogo/task-descriptions-*.json
 .cnogo/prompt-*.md
+# Python bytecode
+__pycache__/
+
+# Supabase temp files
+supabase/.temp/
 # <<< cnogo
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 

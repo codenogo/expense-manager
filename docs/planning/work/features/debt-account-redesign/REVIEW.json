@@ -1,0 +1,329 @@
+{
+  "automated": [
+    {
+      "name": "lint",
+      "result": "pass"
+    },
+    {
+      "name": "types",
+      "result": "fail"
+    },
+    {
+      "name": "tests",
+      "result": "pass"
+    }
+  ],
+  "blockers": [],
+  "branch": "feature/debt-account-redesign",
+  "feature": "debt-account-redesign",
+  "impactAnalysis": {
+    "affected_files": [
+      "src/components/layout/desktop-header.tsx",
+      "src/components/layout/main-content.tsx"
+    ],
+    "affected_symbols": [
+      {
+        "depth": 1,
+        "file_path": "src/components/layout/desktop-header.tsx",
+        "label": "file",
+        "name": "desktop-header.tsx"
+      },
+      {
+        "depth": 1,
+        "file_path": "src/components/layout/main-content.tsx",
+        "label": "file",
+        "name": "main-content.tsx"
+      }
+    ],
+    "enabled": true,
+    "graph_status": "indexed",
+    "per_file": {
+      ".cnogo/issues.jsonl": [],
+      ".cnogo/scripts/__pycache__/workflow_checks_core.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/__init__.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/model.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/parse_types.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/python_parser.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/storage.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/typescript_parser.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/visualization.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/walker.cpython-314.pyc": [],
+      ".cnogo/scripts/context/__pycache__/workflow.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/__init__.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/calls.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/community.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/contracts.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/coupling.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/dead_code.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/exports.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/flows.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/heritage.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/impact.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/imports.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/proximity.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/structure.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/symbols.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/test_coverage.cpython-314.pyc": [],
+      ".cnogo/scripts/context/phases/__pycache__/types.cpython-314.pyc": [],
+      ".cnogo/scripts/memory/__pycache__/bridge.cpython-314.pyc": [],
+      ".cnogo/scripts/memory/__pycache__/context.cpython-314.pyc": [],
+      ".cnogo/scripts/memory/__pycache__/sync.cpython-314.pyc": [],
+      ".interface-design/system.md": [],
+      "docs/planning/work/features/debt-account-redesign/01-PLAN.json": [],
+      "docs/planning/work/features/debt-account-redesign/01-PLAN.md": [],
+      "docs/planning/work/features/debt-account-redesign/02-PLAN.json": [],
+      "docs/planning/work/features/debt-account-redesign/02-PLAN.md": [],
+      "docs/planning/work/features/debt-account-redesign/03-PLAN.json": [],
+      "docs/planning/work/features/debt-account-redesign/03-PLAN.md": [],
+      "docs/planning/work/features/debt-account-redesign/04-PLAN.json": [],
+      "docs/planning/work/features/debt-account-redesign/04-PLAN.md": [],
+      "docs/planning/work/features/debt-account-redesign/05-PLAN.json": [],
+      "docs/planning/work/features/debt-account-redesign/05-PLAN.md": [],
+      "docs/planning/work/features/debt-account-redesign/06-PLAN.json": [],
+      "docs/planning/work/features/debt-account-redesign/06-PLAN.md": [],
+      "docs/planning/work/features/debt-account-redesign/CONTEXT.json": [],
+      "docs/planning/work/features/debt-account-redesign/CONTEXT.md": [],
+      "docs/planning/work/features/debt-account-redesign/REVIEW.json": [],
+      "docs/planning/work/features/debt-account-redesign/REVIEW.md": [],
+      "docs/planning/work/features/ui-component-uplift/07-SUMMARY.json": [],
+      "docs/planning/work/features/ui-component-uplift/07-SUMMARY.md": [],
+      "docs/planning/work/features/ui-component-uplift/08-SUMMARY.json": [],
+      "docs/planning/work/features/ui-component-uplift/08-SUMMARY.md": [],
+      "docs/planning/work/features/ui-component-uplift/09-SUMMARY.json": [],
+      "docs/planning/work/features/ui-component-uplift/09-SUMMARY.md": [],
+      "docs/planning/work/features/ui-component-uplift/10-SUMMARY.json": [],
+      "docs/planning/work/features/ui-component-uplift/10-SUMMARY.md": [],
+      "docs/planning/work/features/ui-component-uplift/REVIEW.json": [],
+      "docs/planning/work/features/ui-component-uplift/REVIEW.md": [],
+      "src/components/layout/desktop-header.tsx": [],
+      "src/components/layout/main-content.tsx": [],
+      "src/components/layout/sidebar-provider.tsx": [
+        {
+          "depth": 1,
+          "file_path": "src/components/layout/desktop-header.tsx",
+          "label": "file",
+          "name": "desktop-header.tsx"
+        },
+        {
+          "depth": 1,
+          "file_path": "src/components/layout/main-content.tsx",
+          "label": "file",
+          "name": "main-content.tsx"
+        }
+      ],
+      "supabase/.temp/cli-latest": [],
+      "supabase/.temp/gotrue-version": [],
+      "supabase/.temp/pooler-url": [],
+      "supabase/.temp/postgres-version": [],
+      "supabase/.temp/project-ref": [],
+      "supabase/.temp/rest-version": [],
+      "supabase/.temp/storage-migration": [],
+      "supabase/.temp/storage-version": []
+    },
+    "total_affected": 2
+  },
+  "invariants": {
+    "findings": [
+      {
+        "file": "src/components/layout/desktop-header.tsx",
+        "line": 17,
+        "message": "Line length 158 exceeds 140.",
+        "rule": "max-line-length",
+        "severity": "warn"
+      }
+    ],
+    "summary": {
+      "fail": 0,
+      "total": 1,
+      "warn": 1
+    }
+  },
+  "packages": [
+    {
+      "checks": [
+        {
+          "cmd": "npm run -s lint",
+          "cwd": ".",
+          "exitCode": 0,
+          "fullOutputPath": null,
+          "name": "lint",
+          "output": "",
+          "outputReducer": "empty",
+          "reason": null,
+          "result": "pass",
+          "tokenTelemetry": {
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "savedTokens": 0,
+            "savingsPct": 0.0
+          }
+        },
+        {
+          "cmd": "npx tsc --noEmit",
+          "cwd": ".",
+          "exitCode": 1,
+          "fullOutputPath": null,
+          "name": "typecheck",
+          "output": "GROUPED FINDINGS:\nsrc: 2\nFINDINGS:\nsrc/components/layout/desktop-header.tsx(4,29): error TS2307: Cannot find module '@/components/ui/theme-toggle' or its corresponding type declarations. (x2)\nsrc/components/layout/desktop-header.tsx(6,47): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations. (x2)\nSUMMARY:",
+          "outputReducer": "grouped-errors",
+          "reason": null,
+          "result": "fail",
+          "tokenTelemetry": {
+            "inputTokens": 72,
+            "outputTokens": 85,
+            "savedTokens": 0,
+            "savingsPct": 0.0
+          }
+        },
+        {
+          "cmd": "npm test --silent",
+          "cwd": ".",
+          "exitCode": 0,
+          "fullOutputPath": null,
+          "name": "test",
+          "output": "SUMMARY:\nTest Files  3 passed (3)\nTests  37 passed (37)\nDuration  140ms (transform 103ms, setup 0ms, import 134ms, tests 12ms, environment 0ms)",
+          "outputReducer": "failure-focus",
+          "reason": null,
+          "result": "pass",
+          "tokenTelemetry": {
+            "inputTokens": 169,
+            "outputTokens": 35,
+            "savedTokens": 134,
+            "savingsPct": 79.3
+          }
+        }
+      ],
+      "kind": "node",
+      "name": "limohome",
+      "path": "."
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": ".next",
+      "path": ".next"
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": "build",
+      "path": ".next/build"
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": "dev",
+      "path": ".next/dev"
+    },
+    {
+      "checks": [
+        {
+          "cmd": null,
+          "name": "lint",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "typecheck",
+          "result": "skipped"
+        },
+        {
+          "cmd": null,
+          "name": "test",
+          "result": "skipped"
+        }
+      ],
+      "kind": "node",
+      "name": "build",
+      "path": ".next/dev/build"
+    }
+  ],
+  "patternCompliance": [],
+  "performanceFindings": [],
+  "principleNotes": [],
+  "schemaVersion": 4,
+  "securityFindings": [],
+  "stageReviews": [
+    {
+      "evidence": [],
+      "findings": [],
+      "notes": "",
+      "stage": "spec-compliance",
+      "status": "pending"
+    },
+    {
+      "evidence": [],
+      "findings": [],
+      "notes": "",
+      "stage": "code-quality",
+      "status": "pending"
+    }
+  ],
+  "timestamp": "2026-03-01T20:41:42Z",
+  "tokenTelemetry": {
+    "checksRun": 3,
+    "checksSkipped": 12,
+    "inputTokens": 241,
+    "outputTokens": 120,
+    "savedTokens": 134,
+    "savingsPct": 55.6
+  },
+  "verdict": "fail",
+  "warnings": [
+    {
+      "file": "src/components/layout/desktop-header.tsx",
+      "issue": "Line length 158 exceeds 140.",
+      "line": 17,
+      "rule": "max-line-length",
+      "severity": "medium"
+    }
+  ]
+}

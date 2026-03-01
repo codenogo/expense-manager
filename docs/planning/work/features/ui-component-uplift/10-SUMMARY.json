@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 2,
+  "feature": "ui-component-uplift",
+  "planNumber": "10",
+  "outcome": "complete",
+  "changes": [
+    {
+      "file": "src/components/charts/bar-chart.tsx",
+      "description": "Replaced hardcoded axis strokes with var(--muted-foreground), added custom tooltip (bg-card border shadow-lg rounded-lg p-3), reduced grid opacity"
+    },
+    {
+      "file": "src/components/charts/pie-chart.tsx",
+      "description": "Added custom tooltip with card-styled container matching bar chart"
+    },
+    {
+      "file": "src/components/dashboard/category-breakdown.tsx",
+      "description": "Replaced hardcoded COLORS with chart CSS variables (--chart-1 through --chart-5) via getComputedStyle with fallbacks"
+    },
+    {
+      "file": "src/components/dashboard/spending-trends.tsx",
+      "description": "Added empty state with BarChart3 icon when no spending data"
+    },
+    {
+      "file": "src/components/dashboard/income-vs-expenses.tsx",
+      "description": "Added empty state with TrendingUp icon when no data"
+    },
+    {
+      "file": "src/components/dashboard/member-contributions.tsx",
+      "description": "Added empty state with Users icon when no members or transactions, removed redundant inline check"
+    },
+    {
+      "file": "src/components/ui/theme-toggle.tsx",
+      "description": "NEW: Client component with Sun/Moon toggle, reads/writes dark class + localStorage, respects system preference"
+    },
+    {
+      "file": "src/app/layout.tsx",
+      "description": "Added suppressHydrationWarning to html, inline script to apply dark class before hydration (prevents FOUC)"
+    },
+    {
+      "file": "src/components/layout/sidebar.tsx",
+      "description": "Mounted ThemeToggle in sidebar footer below nav"
+    }
+  ],
+  "verification": [
+    { "command": "npx tsc --noEmit", "result": "pass" },
+    { "command": "npm run build", "result": "pass" }
+  ],
+  "commit": "ee3aecd",
+  "timestamp": "2026-03-01T15:00:00Z"
+}

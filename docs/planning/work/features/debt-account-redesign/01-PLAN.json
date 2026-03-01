@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 2,
+  "feature": "debt-account-redesign",
+  "planNumber": "01",
+  "goal": "Add debt_payments table and is_system_managed column to accounts, then update TypeScript types",
+  "tasks": [
+    {
+      "name": "Write migration 00009 for debt_payments table and accounts column",
+      "files": ["supabase/migrations/00009_debt_payments.sql"],
+      "microSteps": [
+        "Create migration file 00009_debt_payments.sql",
+        "Add debt_payments table with columns: id (uuid PK), household_id (FK households), debt_id (FK debts), account_id (FK accounts), transaction_id (FK transactions, nullable), amount (bigint), date (date), notes (text nullable), created_at (timestamptz)",
+        "Add is_system_managed boolean column to accounts table (default false)",
+        "Add indexes: debt_payments by household_id, debt_id, and date",
+        "Add RLS policy for debt_payments matching household_id pattern",
+        "Add updated_at trigger if needed"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "SQL migration — verified by syntax check and build, no runtime unit test applicable"
+      },
+      "action": "Create supabase/migrations/00009_debt_payments.sql with:\n\n1. CREATE TABLE debt_payments with:\n   - id uuid PK default gen_random_uuid()\n   - household_id uuid NOT NULL FK households ON DELETE CASCADE\n   - debt_id uuid NOT NULL FK debts ON DELETE CASCADE\n   - account_id uuid NOT NULL FK accounts ON DELETE CASCADE\n   - transaction_id uuid FK transactions ON DELETE SET NULL (nullable — set after transaction created)\n   - amount bigint NOT NULL (KES cents)\n   - date date NOT NULL DEFAULT CURRENT_DATE\n   - notes text (nullable)\n   - created_at timestamptz NOT NULL DEFAULT now()\n\n2. ALTER TABLE accounts ADD COLUMN is_system_managed boolean NOT NULL DEFAULT false;\n\n3. Indexes:\n   - idx_debt_payments_household ON debt_payments(household_id)\n   - idx_debt_payments_debt ON debt_payments(debt_id)\n   - idx_debt_payments_date ON debt_payments(date)\n\n4. RLS:\n   - ALTER TABLE debt_payments ENABLE ROW LEVEL SECURITY;\n   - CREATE POLICY using same household_id pattern as other tables\n\nFollow the exact patterns from 00001_initial_schema.sql for consistency.",
+      "verify": ["npx tsc --noEmit"]
+    },
+    {
+      "name": "Update TypeScript database types for new schema",
+      "files": ["src/types/database.ts"],
+      "microSteps": [
+        "Read current database.ts to understand the type generation pattern",
+        "Add debt_payments table Row/Insert/Update types following existing pattern",
+        "Add is_system_managed field to accounts Row type",
+        "Verify all types are consistent with migration"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Type definitions — verified by TypeScript compiler (tsc --noEmit)"
+      },
+      "action": "Update src/types/database.ts to add:\n\n1. debt_payments table types (Row, Insert, Update) following the exact pattern used for other tables in the file\n2. Add is_system_managed: boolean to accounts Row type\n3. Add is_system_managed?: boolean to accounts Insert type (has default)\n4. Add is_system_managed?: boolean to accounts Update type\n\nThe debt_payments Row type should have:\n- id: string\n- household_id: string\n- debt_id: string\n- account_id: string\n- transaction_id: string | null\n- amount: number\n- date: string\n- notes: string | null\n- created_at: string",
+      "verify": ["npx tsc --noEmit"],
+      "blockedBy": [0]
+    }
+  ],
+  "planVerify": ["npx tsc --noEmit"],
+  "commitMessage": "feat(debts): add debt_payments table and is_system_managed account flag",
+  "timestamp": "2026-03-01T00:00:00Z"
+}
