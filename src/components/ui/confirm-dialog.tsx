@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 interface ConfirmDialogProps {
@@ -22,6 +22,9 @@ export function ConfirmDialog({
   confirmLabel = 'Confirm',
   variant = 'default',
 }: ConfirmDialogProps) {
+  const id = useId()
+  const titleId = `${id}-title`
+  const descId = `${id}-desc`
   const confirmRef = useRef<HTMLButtonElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
@@ -67,18 +70,18 @@ export function ConfirmDialog({
         onClick={(e) => e.stopPropagation()}
         role="alertdialog"
         aria-modal="true"
-        aria-labelledby="confirm-dialog-title"
-        aria-describedby={description ? 'confirm-dialog-desc' : undefined}
+        aria-labelledby={titleId}
+        aria-describedby={description ? descId : undefined}
       >
         <h2
-          id="confirm-dialog-title"
+          id={titleId}
           className="text-base font-semibold text-slate-900"
         >
           {title}
         </h2>
         {description && (
           <p
-            id="confirm-dialog-desc"
+            id={descId}
             className="mt-2 text-sm text-slate-500"
           >
             {description}

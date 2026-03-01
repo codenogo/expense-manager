@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { deleteAccount } from '@/lib/actions/accounts'
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -10,6 +11,7 @@ interface DeleteAccountButtonProps {
 }
 
 export function DeleteAccountButton({ id, name }: DeleteAccountButtonProps) {
+  const [deleting, setDeleting] = useState(false)
   const { confirm, dialogProps } = useConfirmDialog()
 
   async function handleDelete() {
@@ -20,6 +22,7 @@ export function DeleteAccountButton({ id, name }: DeleteAccountButtonProps) {
       variant: 'danger',
     })
     if (ok) {
+      setDeleting(true)
       const action = deleteAccount.bind(null, id)
       await action()
     }
@@ -30,10 +33,12 @@ export function DeleteAccountButton({ id, name }: DeleteAccountButtonProps) {
       <button
         type="button"
         onClick={handleDelete}
+        disabled={deleting}
         className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium
-          text-red-600 hover:bg-red-50 transition-colors"
+          text-red-600 hover:bg-red-50 transition-colors
+          disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Delete Account
+        {deleting ? 'Deleting...' : 'Delete Account'}
       </button>
       <ConfirmDialog {...dialogProps} />
     </>

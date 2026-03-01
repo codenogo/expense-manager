@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { deleteTransaction } from '@/lib/actions/transactions'
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -9,6 +10,7 @@ interface DeleteTransactionButtonProps {
 }
 
 export function DeleteTransactionButton({ id }: DeleteTransactionButtonProps) {
+  const [deleting, setDeleting] = useState(false)
   const { confirm, dialogProps } = useConfirmDialog()
 
   async function handleDelete() {
@@ -20,6 +22,7 @@ export function DeleteTransactionButton({ id }: DeleteTransactionButtonProps) {
       variant: 'danger',
     })
     if (ok) {
+      setDeleting(true)
       const action = deleteTransaction.bind(null, id)
       await action()
     }
@@ -30,10 +33,12 @@ export function DeleteTransactionButton({ id }: DeleteTransactionButtonProps) {
       <button
         type="button"
         onClick={handleDelete}
+        disabled={deleting}
         className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium
-          text-red-600 hover:bg-red-50 transition-colors"
+          text-red-600 hover:bg-red-50 transition-colors
+          disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Delete Transaction
+        {deleting ? 'Deleting...' : 'Delete Transaction'}
       </button>
       <ConfirmDialog {...dialogProps} />
     </>

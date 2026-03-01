@@ -21,7 +21,11 @@ export function ToastHandler() {
     }
 
     if (toastMsg || errorMsg) {
-      router.replace(pathname)
+      const cleaned = new URLSearchParams(searchParams.toString())
+      cleaned.delete('toast')
+      cleaned.delete('error')
+      const qs = cleaned.toString()
+      router.replace(qs ? `${pathname}?${qs}` : pathname)
     }
   }, [searchParams, router, pathname])
 

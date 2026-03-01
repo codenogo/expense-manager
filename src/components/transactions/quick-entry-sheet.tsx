@@ -24,7 +24,13 @@ export function QuickEntrySheet({
 
   useEffect(() => {
     if (open) {
+      document.body.style.overflow = 'hidden'
       requestAnimationFrame(() => amountRef.current?.focus())
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
     }
   }, [open])
 
