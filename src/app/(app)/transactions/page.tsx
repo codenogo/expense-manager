@@ -5,6 +5,7 @@ import { getAccounts } from '@/lib/actions/accounts'
 import { getCategories } from '@/lib/actions/categories'
 import { TransactionList } from '@/components/transactions/transaction-list'
 import { TransactionFilters } from '@/components/transactions/transaction-filters'
+import { TransactionSearch } from '@/components/transactions/transaction-search'
 
 interface TransactionsPageProps {
   searchParams: Promise<{
@@ -50,6 +51,8 @@ export default async function TransactionsPage({ searchParams }: TransactionsPag
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
+        <TransactionSearch accounts={accounts} categories={categories} />
+
         <Suspense>
           <TransactionFilters accounts={accounts} categories={categories} />
         </Suspense>
