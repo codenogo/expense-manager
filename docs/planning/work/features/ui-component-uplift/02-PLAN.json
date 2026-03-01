@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 2,
+  "feature": "ui-component-uplift",
+  "planNumber": "02",
+  "goal": "Refactor transaction forms and account form to use shadcn/ui components, replacing all native HTML controls",
+  "tasks": [
+    {
+      "name": "Refactor transaction-form.tsx",
+      "files": [
+        "src/components/transactions/transaction-form.tsx"
+      ],
+      "microSteps": [
+        "Replace <input type='date'> with DatePicker component (name='date')",
+        "Replace account <select> with Combobox (name='account_id', type-to-filter accounts)",
+        "Replace category <select> with Combobox (name='category_id', type-to-filter categories)",
+        "Replace type radio buttons with styled radio group using Button variant='outline'",
+        "Replace <input type='number'> (amount) with Input component",
+        "Replace <textarea> (notes) with Textarea component",
+        "Replace all <label> with Label component",
+        "Replace submit <button> with Button component",
+        "Preserve server action form submission pattern (FormData-based)",
+        "Verify edit mode still works (defaultValue for all fields)",
+        "Run type check and build"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component swap — same behavior, different rendering. Verified via type check, build, and manual testing."
+      },
+      "action": "Refactor the main transaction form. Replace all 8+ native HTML controls with shadcn/ui equivalents. Key mapping: <input type='date'> → DatePicker, <select> (account/category) → Combobox, radio buttons → styled Button toggle group, <input> → Input, <textarea> → Textarea, <label> → Label, <button> → Button. Preserve the server action form submission (FormData), edit mode with defaultValues, and all name attributes.",
+      "verify": [
+        "npx tsc --noEmit",
+        "npm run build"
+      ]
+    },
+    {
+      "name": "Refactor transaction-filters.tsx and quick-entry-sheet.tsx",
+      "files": [
+        "src/components/transactions/transaction-filters.tsx",
+        "src/components/transactions/quick-entry-sheet.tsx"
+      ],
+      "microSteps": [
+        "transaction-filters: Replace 2x <input type='date'> with DatePicker (from/to dates)",
+        "transaction-filters: Replace type <select> with Select component",
+        "transaction-filters: Replace account/category <select> with Combobox components",
+        "transaction-filters: Preserve URL-based navigation pattern (router.push with query params)",
+        "quick-entry-sheet: Replace account/category <select> with Combobox components",
+        "quick-entry-sheet: Replace amount <input> with Input component",
+        "quick-entry-sheet: Replace type toggle and submit button with Button components",
+        "quick-entry-sheet: Preserve quickCreateTransaction server action + toast pattern",
+        "Run type check and build"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component swap — verified via type check, build, and manual testing"
+      },
+      "action": "Refactor transaction-filters (URL-based navigation, not FormData) and quick-entry-sheet (server action + toast). For filters: 2x date → DatePicker (using onChange callback instead of FormData), selects → Combobox/Select with onChange. For quick-entry: selects → Combobox, inputs → Input, buttons → Button. Preserve the body scroll lock, focus management, and toast behavior in quick-entry-sheet.",
+      "verify": [
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "blockedBy": [0]
+    },
+    {
+      "name": "Refactor account-form.tsx and debt detail page inline form",
+      "files": [
+        "src/components/accounts/account-form.tsx",
+        "src/app/(app)/debts/[id]/page.tsx"
+      ],
+      "microSteps": [
+        "account-form: Replace type <select> with Select component (6 account types)",
+        "account-form: Replace name/balance <input> with Input component",
+        "account-form: Replace <label> with Label, <button> with Button",
+        "account-form: Preserve server action and edit mode defaultValues",
+        "debt detail page: Replace payment amount <input> with Input component",
+        "debt detail page: Replace account <select> with Select component (optional field)",
+        "debt detail page: Replace submit/delete <button> with Button component (preserve danger variant for delete)",
+        "Run type check and build"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component swap — verified via type check, build, and manual testing"
+      },
+      "action": "Refactor account-form (3 controls: type select, name input, balance input) and the debt detail page inline forms (record payment form + delete form). account-form: type <select> → Select, inputs → Input, labels → Label, button → Button. Debt page: payment input → Input, account select → Select, buttons → Button (preserve red danger styling on delete button via variant='destructive').",
+      "verify": [
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "blockedBy": [0]
+    }
+  ],
+  "planVerify": [
+    "npx tsc --noEmit",
+    "npm run build"
+  ],
+  "commitMessage": "feat(ui): refactor transaction, account, and debt detail forms to shadcn/ui components",
+  "timestamp": "2026-03-01T00:00:00Z"
+}

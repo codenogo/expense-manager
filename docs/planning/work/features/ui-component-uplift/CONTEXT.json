@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "feature": "ui-component-uplift",
+  "displayName": "UI Component Uplift",
+  "decisions": [
+    {
+      "area": "library",
+      "decision": "shadcn/ui",
+      "rationale": "Copy-paste Radix-based components, Tailwind-native, tree-shakeable, full control. Most popular for Next.js apps. Supports Tailwind v4."
+    },
+    {
+      "area": "scope",
+      "decision": "Full form controls",
+      "rationale": "Replace date pickers, selects, plus create reusable Input, Label, Button, Textarea components. All 13+ form files refactored to use the new primitives."
+    },
+    {
+      "area": "combobox",
+      "decision": "Add searchable combobox for categories and accounts",
+      "rationale": "Categories and accounts can grow large. Combobox with type-to-filter improves UX significantly over plain <select>."
+    },
+    {
+      "area": "date-picker",
+      "decision": "shadcn/ui DatePicker (Radix Popover + react-day-picker)",
+      "rationale": "Replaces 6 native <input type=date> with consistent, accessible date picker. Better mobile UX and visual consistency."
+    },
+    {
+      "area": "compatibility",
+      "decision": "Tailwind v4 CSS-first config",
+      "rationale": "Project uses Tailwind v4 with @theme inline in globals.css. No tailwind.config.ts. shadcn/ui init must use v4-compatible setup with CSS variables."
+    }
+  ],
+  "constraints": [
+    "Tailwind CSS v4 (CSS-first config, no tailwind.config.ts)",
+    "React 19.2.3 with Next.js 16.1.6",
+    "All forms use Next.js Server Actions via useActionState — no react-hook-form",
+    "Keep server action form submission pattern (FormData-based)",
+    "Existing warm color theme: terracotta (blue-600 = #C4663A), highland green (emerald-600 = #2D8659)",
+    "DM Sans is the primary font",
+    "Must preserve existing ConfirmDialog and QuickEntrySheet (recently shipped in progressive-enhancement)"
+  ],
+  "openQuestions": [],
+  "relatedCode": [
+    "src/components/ui/currency.tsx",
+    "src/components/ui/progress-bar.tsx",
+    "src/components/ui/confirm-dialog.tsx",
+    "src/components/ui/toast-handler.tsx",
+    "src/components/accounts/account-form.tsx",
+    "src/components/transactions/transaction-form.tsx",
+    "src/components/transactions/transaction-filters.tsx",
+    "src/components/transactions/quick-entry-sheet.tsx",
+    "src/components/bills/bill-form.tsx",
+    "src/components/debts/debt-form.tsx",
+    "src/components/savings/goal-form.tsx",
+    "src/components/categories/category-form.tsx",
+    "src/components/budget/add-budget-form.tsx",
+    "src/components/settings/rule-form.tsx",
+    "src/components/import/column-mapper.tsx",
+    "src/components/import/csv-upload.tsx",
+    "src/components/import/import-preview.tsx",
+    "src/components/auth/sign-in-form.tsx",
+    "src/components/auth/sign-up-form.tsx",
+    "src/app/globals.css"
+  ],
+  "timestamp": "2026-03-01T00:00:00Z"
+}

@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 2,
+  "feature": "ui-component-uplift",
+  "planNumber": "03",
+  "goal": "Refactor bills, debts, savings, budget, and category forms to use shadcn/ui components",
+  "tasks": [
+    {
+      "name": "Refactor bill-form.tsx and debt-form.tsx",
+      "files": [
+        "src/components/bills/bill-form.tsx",
+        "src/components/debts/debt-form.tsx"
+      ],
+      "microSteps": [
+        "bill-form: Replace <input type='date'> with DatePicker (name='next_due')",
+        "bill-form: Replace frequency <select> with Select component",
+        "bill-form: Replace category/account <select> with Combobox components",
+        "bill-form: Replace name/amount <input> with Input, <label> with Label, <button> with Button",
+        "bill-form: Preserve server action and edit mode defaultValues",
+        "debt-form: Replace type <select> with Select (4 debt types)",
+        "debt-form: Replace name/balance/interest/min_payment <input> with Input",
+        "debt-form: Replace conditional owed_to <input> with Input",
+        "debt-form: Replace <label> with Label, <button> with Button",
+        "debt-form: Preserve useState for type-based conditional rendering",
+        "Run type check and build"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component swap — verified via type check, build, and manual testing"
+      },
+      "action": "Refactor bill-form (6 controls: name, amount, frequency select, date, category combobox, account combobox) and debt-form (6+ controls: name, type select, balance, interest, min_payment, conditional owed_to). Both use server actions via prop. Preserve bill-form's frequency enum labels and debt-form's conditional rendering based on debt type useState.",
+      "verify": [
+        "npx tsc --noEmit",
+        "npm run build"
+      ]
+    },
+    {
+      "name": "Refactor goal-form.tsx and add-budget-form.tsx",
+      "files": [
+        "src/components/savings/goal-form.tsx",
+        "src/components/budget/add-budget-form.tsx"
+      ],
+      "microSteps": [
+        "goal-form: Replace <input type='date'> with DatePicker (optional deadline)",
+        "goal-form: Replace account <select> with Combobox (optional)",
+        "goal-form: Replace name/target_amount <input> with Input, <label> with Label, <button> with Button",
+        "goal-form: Preserve server action and edit mode defaultValues",
+        "add-budget-form: Replace category <select> with Select (filtered list)",
+        "add-budget-form: Replace amount <input> with Input",
+        "add-budget-form: Replace <button> with Button",
+        "add-budget-form: Preserve useActionState pattern and toast calls",
+        "Run type check and build"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component swap — verified via type check, build, and manual testing"
+      },
+      "action": "Refactor goal-form (4 controls: name, target_amount, optional deadline date, optional account select) and add-budget-form (3 controls: category select, amount input, submit button with hidden month). goal-form: date → DatePicker, account → Combobox, inputs → Input. add-budget-form: category → Select (uses filtered category list), input → Input, button → Button. Preserve useActionState and toast.success/error calls in add-budget-form.",
+      "verify": [
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "blockedBy": [0]
+    },
+    {
+      "name": "Refactor category-form.tsx",
+      "files": [
+        "src/components/categories/category-form.tsx"
+      ],
+      "microSteps": [
+        "Replace parent category <select> with Select component",
+        "Replace name <input> with Input component",
+        "Upgrade color radio buttons to styled color picker using Button variant='outline' with color-coded backgrounds",
+        "Replace <label> with Label, submit <button> with Button",
+        "Preserve useActionState pattern (pending state, error display, auto-close on success)",
+        "Preserve 9-color preset array and radio group behavior",
+        "Run type check and build"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component swap — verified via type check, build, and manual testing"
+      },
+      "action": "Refactor category-form which has the most complex UI (color picker with 9 presets, hierarchical parent select, useActionState with auto-close). Replace parent <select> → Select, name <input> → Input, <label> → Label, submit <button> → Button. For color radio buttons: keep the custom radio group pattern but style with shadcn Button variant='outline' for each color swatch, adding a ring/border highlight on selected. Preserve all useActionState logic.",
+      "verify": [
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "blockedBy": [0]
+    }
+  ],
+  "planVerify": [
+    "npx tsc --noEmit",
+    "npm run build"
+  ],
+  "commitMessage": "feat(ui): refactor bill, debt, savings, budget, and category forms to shadcn/ui components",
+  "timestamp": "2026-03-01T00:00:00Z"
+}
