@@ -89,7 +89,9 @@ export async function createTransaction(formData: FormData): Promise<void> {
     created_by: user.id,
   })
 
-  if (insertError) throw new Error(insertError.message)
+  if (insertError) {
+    redirect('/transactions?error=Failed+to+create+transaction')
+  }
 
   const { data: account, error: accountError } = await supabase
     .from('accounts')
@@ -98,7 +100,9 @@ export async function createTransaction(formData: FormData): Promise<void> {
     .eq('household_id', householdId)
     .single()
 
-  if (accountError || !account) throw new Error(accountError?.message ?? 'Account not found')
+  if (accountError || !account) {
+    redirect('/transactions?error=Account+not+found')
+  }
 
   const newBalance =
     type === 'expense' ? account.balance - amountCents : account.balance + amountCents
@@ -109,12 +113,14 @@ export async function createTransaction(formData: FormData): Promise<void> {
     .eq('id', accountId)
     .eq('household_id', householdId)
 
-  if (balanceError) throw new Error(balanceError.message)
+  if (balanceError) {
+    redirect('/transactions?error=Failed+to+update+account+balance')
+  }
 
   updateTag(`dashboard-${householdId}`)
   updateTag(`accounts-${householdId}`)
   updateTag(`reports-${householdId}`)
-  redirect('/transactions')
+  redirect('/transactions?toast=Transaction+created')
 }
 
 export async function updateTransaction(id: string, formData: FormData): Promise<void> {
@@ -175,7 +181,9 @@ export async function updateTransaction(id: string, formData: FormData): Promise
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (updateError) throw new Error(updateError.message)
+  if (updateError) {
+    redirect('/transactions?error=Failed+to+update+transaction')
+  }
 
   const { error: balanceError } = await supabase
     .from('accounts')
@@ -183,12 +191,14 @@ export async function updateTransaction(id: string, formData: FormData): Promise
     .eq('id', oldTx.account_id)
     .eq('household_id', householdId)
 
-  if (balanceError) throw new Error(balanceError.message)
+  if (balanceError) {
+    redirect('/transactions?error=Failed+to+update+account+balance')
+  }
 
   updateTag(`dashboard-${householdId}`)
   updateTag(`accounts-${householdId}`)
   updateTag(`reports-${householdId}`)
-  redirect('/transactions')
+  redirect('/transactions?toast=Transaction+updated')
 }
 
 export async function deleteTransaction(id: string): Promise<void> {
@@ -222,7 +232,9 @@ export async function deleteTransaction(id: string): Promise<void> {
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (deleteError) throw new Error(deleteError.message)
+  if (deleteError) {
+    redirect('/transactions?error=Failed+to+delete+transaction')
+  }
 
   const { error: balanceError } = await supabase
     .from('accounts')
@@ -230,12 +242,69 @@ export async function deleteTransaction(id: string): Promise<void> {
     .eq('id', tx.account_id)
     .eq('household_id', householdId)
 
-  if (balanceError) throw new Error(balanceError.message)
+  if (balanceError) {
+    redirect('/transactions?error=Failed+to+update+account+balance')
+  }
 
   updateTag(`dashboard-${householdId}`)
   updateTag(`accounts-${householdId}`)
   updateTag(`reports-${householdId}`)
-  redirect('/transactions')
+  redirect('/transactions?toast=Transaction+deleted')
+}
+
+export async function quickCreateTransaction(
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const amountKES = parseFloat(formData.get('amount') as string) || 0
+  const amountCents = Math.round(amountKES * 100)
+  const date = (formData.get('date') as string) || new Date().toISOString().split('T')[0]
+  const type = formData.get('type') as 'income' | 'expense'
+  const accountId = formData.get('account_id') as string
+  const categoryId = (formData.get('category_id') as string) || null
+  const notes = (formData.get('notes') as string) || null
+
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const { user } = await getAuthContext()
+
+  const { error: insertError } = await supabase.from('transactions').insert({
+    household_id: householdId,
+    account_id: accountId,
+    category_id: categoryId,
+    amount: amountCents,
+    type,
+    date,
+    notes,
+    created_by: user.id,
+  })
+
+  if (insertError) return { success: false, error: insertError.message }
+
+  const { data: account, error: accountError } = await supabase
+    .from('accounts')
+    .select('balance')
+    .eq('id', accountId)
+    .eq('household_id', householdId)
+    .single()
+
+  if (accountError || !account) return { success: false, error: 'Account not found' }
+
+  const newBalance =
+    type === 'expense' ? account.balance - amountCents : account.balance + amountCents
+
+  const { error: balanceError } = await supabase
+    .from('accounts')
+    .update({ balance: newBalance })
+    .eq('id', accountId)
+    .eq('household_id', householdId)
+
+  if (balanceError) return { success: false, error: balanceError.message }
+
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
+  updateTag(`reports-${householdId}`)
+  return { success: true }
 }
 
 export async function searchTransactions(query: string): Promise<Tables<'transactions'>[]> {

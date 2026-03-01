@@ -27,7 +27,9 @@ export function TransactionSearch({ accounts, categories }: TransactionSearchPro
   // Search on debounced query change
   useEffect(() => {
     if (!debouncedQuery.trim()) {
-      setResults([])
+      startTransition(() => {
+        setResults([])
+      })
       return
     }
     startTransition(async () => {

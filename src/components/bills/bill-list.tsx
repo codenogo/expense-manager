@@ -2,7 +2,10 @@
 
 import { useMemo } from 'react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { markPaid, deleteRecurring } from '@/lib/actions/recurring'
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { formatKES } from '@/components/ui/currency'
 import type { Tables } from '@/types/database'
 
@@ -49,6 +52,7 @@ interface BillItemProps {
 function BillItem({ item, accounts, categories, status }: BillItemProps) {
   const account = accounts.find((a) => a.id === item.account_id)
   const category = categories.find((c) => c.id === item.category_id)
+  const { confirm, dialogProps } = useConfirmDialog()
 
   const statusStyles = {
     overdue: 'bg-red-50 border-red-100',
@@ -68,8 +72,26 @@ function BillItem({ item, accounts, categories, status }: BillItemProps) {
     upcoming: 'Upcoming',
   }
 
-  const markPaidAction = markPaid.bind(null, item.id)
-  const deleteAction = deleteRecurring.bind(null, item.id)
+  async function handleMarkPaid() {
+    try {
+      await markPaid(item.id)
+      toast.success('Bill marked as paid')
+    } catch {
+      toast.error('Failed to mark bill as paid')
+    }
+  }
+
+  async function handleDelete() {
+    const ok = await confirm({
+      title: `Delete "${item.name}"?`,
+      description: 'This will remove the recurring bill. This action cannot be undone.',
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (ok) {
+      await deleteRecurring(item.id)
+    }
+  }
 
   return (
     <div className={`rounded-xl border p-4 ${statusStyles[status]}`}>
@@ -101,30 +123,29 @@ function BillItem({ item, accounts, categories, status }: BillItemProps) {
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <form action={markPaidAction}>
-            <button
-              type="submit"
-              className="bg-emerald-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-emerald-700 transition-colors"
-            >
-              Mark Paid
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleMarkPaid}
+            className="bg-emerald-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-emerald-700 transition-colors"
+          >
+            Mark Paid
+          </button>
           <Link
             href={`/bills/${item.id}`}
             className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
           >
             Edit
           </Link>
-          <form action={deleteAction}>
-            <button
-              type="submit"
-              className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Delete
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+          >
+            Delete
+          </button>
         </div>
       </div>
+      <ConfirmDialog {...dialogProps} />
     </div>
   )
 }

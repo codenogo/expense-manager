@@ -1,7 +1,10 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { toast } from 'sonner'
 import { deleteRule } from '@/lib/actions/rules'
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { RuleForm } from './rule-form'
 import type { Tables } from '@/types/database'
 
@@ -31,15 +34,22 @@ function RuleRow({
 }) {
   const [editing, setEditing] = useState(false)
   const [isPending, startTransition] = useTransition()
-  const [error, setError] = useState<string | null>(null)
+  const { confirm, dialogProps } = useConfirmDialog()
 
   const category = categories.find((c) => c.id === rule.category_id)
 
-  function handleDelete() {
-    setError(null)
+  async function handleDelete() {
+    const ok = await confirm({
+      title: 'Delete rule?',
+      description: `Remove the "${rule.match_pattern}" categorization rule?`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+    })
+    if (!ok) return
+
     startTransition(async () => {
       const result = await deleteRule(rule.id)
-      if (result?.error) setError(result.error)
+      if (result?.error) toast.error(result.error)
     })
   }
 
@@ -84,9 +94,7 @@ function RuleRow({
           {isPending ? 'Deleting...' : 'Delete'}
         </button>
       </div>
-      {error && (
-        <p className="text-xs text-red-600 mt-1">{error}</p>
-      )}
+      <ConfirmDialog {...dialogProps} />
     </li>
   )
 }

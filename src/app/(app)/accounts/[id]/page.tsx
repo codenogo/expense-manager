@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { getAccount, deleteAccount } from '@/lib/actions/accounts'
+import { getAccount } from '@/lib/actions/accounts'
 import { AccountForm } from '@/components/accounts/account-form'
+import { DeleteAccountButton } from '@/components/accounts/delete-account-button'
 import { Currency } from '@/components/ui/currency'
 
 interface AccountDetailPageProps {
@@ -10,8 +11,6 @@ interface AccountDetailPageProps {
 export default async function AccountDetailPage({ params }: AccountDetailPageProps) {
   const { id } = await params
   const account = await getAccount(id)
-
-  const deleteWithId = deleteAccount.bind(null, id)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -42,21 +41,7 @@ export default async function AccountDetailPage({ params }: AccountDetailPagePro
             <p className="text-sm text-slate-500 mb-4">
               Deleting this account is permanent and cannot be undone.
             </p>
-            <form
-              action={deleteWithId}
-              onSubmit={(e) => {
-                if (!confirm(`Delete "${account.name}"? This cannot be undone.`)) {
-                  e.preventDefault()
-                }
-              }}
-            >
-              <button
-                type="submit"
-                className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-              >
-                Delete Account
-              </button>
-            </form>
+            <DeleteAccountButton id={id} name={account.name} />
           </div>
         </div>
       </main>

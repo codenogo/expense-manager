@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import { toast } from 'sonner'
 import { setBudget } from '@/lib/actions/budgets'
 import type { Tables } from '@/types/database'
 
@@ -17,7 +18,12 @@ export function AddBudgetForm({ categories, budgetedCategoryIds, month }: AddBud
 
   async function formAction(_state: ActionState, formData: FormData): Promise<ActionState> {
     const result = await setBudget(formData)
-    return result ?? null
+    if (result?.error) {
+      toast.error(result.error)
+      return result
+    }
+    toast.success('Budget created')
+    return null
   }
 
   const [state, action, pending] = useActionState<ActionState, FormData>(formAction, null)

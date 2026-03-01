@@ -6,7 +6,7 @@ interface CategoryBreakdownProps {
   breakdown: { categoryName: string; amount: number; percentage: number }[]
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#a855f7', '#f87171', '#64748b', '#06b6d4', '#ec4899']
+const COLORS = ['#C4663A', '#2D8659', '#D4940A', '#6B5344', '#C53030', '#8A8279', '#B5764E', '#A3522D']
 
 export function CategoryBreakdown({ breakdown }: CategoryBreakdownProps) {
   if (breakdown.length === 0) {

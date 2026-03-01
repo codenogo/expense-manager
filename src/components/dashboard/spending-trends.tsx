@@ -13,7 +13,7 @@ export function SpendingTrends({ data }: SpendingTrendsProps) {
       <SimpleBarChart
         data={data}
         xKey="label"
-        bars={[{ key: 'expenses', color: '#f87171', name: 'Expenses' }]}
+        bars={[{ key: 'expenses', color: '#C4663A', name: 'Expenses' }]}
         height={240}
       />
     </div>

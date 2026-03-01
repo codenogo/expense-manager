@@ -59,9 +59,11 @@ export async function createGoal(formData: FormData): Promise<void> {
     account_id: accountId,
   })
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/savings?error=Failed+to+create+goal')
+  }
 
-  redirect('/savings')
+  redirect('/savings?toast=Savings+goal+created')
 }
 
 export async function updateGoal(id: string, formData: FormData): Promise<void> {
@@ -82,9 +84,11 @@ export async function updateGoal(id: string, formData: FormData): Promise<void> 
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/savings?error=Failed+to+update+goal')
+  }
 
-  redirect('/savings')
+  redirect('/savings?toast=Savings+goal+updated')
 }
 
 export async function deleteGoal(id: string): Promise<void> {
@@ -97,9 +101,11 @@ export async function deleteGoal(id: string): Promise<void> {
     .eq('id', id)
     .eq('household_id', householdId)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    redirect('/savings?error=Failed+to+delete+goal')
+  }
 
-  redirect('/savings')
+  redirect('/savings?toast=Savings+goal+deleted')
 }
 
 export async function addContribution(id: string, formData: FormData): Promise<void> {
