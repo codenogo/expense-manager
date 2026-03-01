@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 interface SidebarProps {
   householdName: string
+  householdId: string
 }
 
 const navItems = [
@@ -21,13 +23,16 @@ const navItems = [
   { href: '/settings/rules', label: 'Settings' },
 ]
 
-export function Sidebar({ householdName }: SidebarProps) {
+export function Sidebar({ householdName, householdId }: SidebarProps) {
   const pathname = usePathname()
 
   return (
     <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 bg-white border-r border-slate-200">
       <div className="px-6 py-5 border-b border-slate-100">
-        <h1 className="text-base font-semibold text-slate-900 truncate">{householdName}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-base font-semibold text-slate-900 truncate">{householdName}</h1>
+          <NotificationBell householdId={householdId} />
+        </div>
         <p className="text-xs text-slate-400 mt-0.5">Finance Planner</p>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">

@@ -14,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Sidebar householdName={household?.name ?? 'Home'} />
+      <Sidebar householdName={household?.name ?? 'Home'} householdId={householdId} />
       <MobileNav />
       <main className="md:ml-64 pb-16 md:pb-0">{children}</main>
       <RealtimeListener householdId={householdId} />
