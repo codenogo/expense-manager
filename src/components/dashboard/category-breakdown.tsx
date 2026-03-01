@@ -1,7 +1,6 @@
 'use client'
 
 import { SimplePieChart } from '@/components/charts/pie-chart'
-import { formatKES } from '@/components/ui/currency'
 
 interface CategoryBreakdownProps {
   breakdown: { categoryName: string; amount: number; percentage: number }[]

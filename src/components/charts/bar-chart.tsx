@@ -4,6 +4,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -37,6 +38,7 @@ export function SimpleBarChart({ data, xKey, bars, height = 300 }: SimpleBarChar
               : 'KES 0.00',
           ]}
         />
+        {bars.length > 1 && <Legend />}
         {bars.map((bar) => (
           <Bar
             key={bar.key}
