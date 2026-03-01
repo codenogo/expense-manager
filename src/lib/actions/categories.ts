@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { unstable_cache, updateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getHouseholdId } from '@/lib/auth'
 import type { Tables } from '@/types/database'
@@ -9,15 +9,21 @@ export async function getCategories(): Promise<Tables<'categories'>[]> {
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('household_id', householdId)
-    .order('name')
+  return unstable_cache(
+    async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('household_id', householdId)
+        .order('name')
 
-  if (error) throw new Error(error.message)
+      if (error) throw new Error(error.message)
 
-  return data ?? []
+      return data ?? []
+    },
+    ['categories', householdId],
+    { tags: [`categories-${householdId}`], revalidate: 900 }
+  )()
 }
 
 export async function createCategory(formData: FormData): Promise<{ error?: string } | void> {
@@ -41,7 +47,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
 
   if (error) return { error: error.message }
 
-  revalidatePath('/categories')
+  updateTag(`categories-${householdId}`)
 }
 
 export async function updateCategory(
@@ -71,7 +77,7 @@ export async function updateCategory(
 
   if (error) return { error: error.message }
 
-  revalidatePath('/categories')
+  updateTag(`categories-${householdId}`)
 }
 
 export async function deleteCategory(id: string): Promise<{ error?: string } | void> {
@@ -94,5 +100,5 @@ export async function deleteCategory(id: string): Promise<{ error?: string } | v
 
   if (error) return { error: error.message }
 
-  revalidatePath('/categories')
+  updateTag(`categories-${householdId}`)
 }

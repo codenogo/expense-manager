@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getHouseholdId, getAuthContext } from '@/lib/auth'
@@ -111,7 +111,9 @@ export async function createTransaction(formData: FormData): Promise<void> {
 
   if (balanceError) throw new Error(balanceError.message)
 
-  revalidatePath('/transactions')
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
+  updateTag(`reports-${householdId}`)
   redirect('/transactions')
 }
 
@@ -183,7 +185,9 @@ export async function updateTransaction(id: string, formData: FormData): Promise
 
   if (balanceError) throw new Error(balanceError.message)
 
-  revalidatePath('/transactions')
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
+  updateTag(`reports-${householdId}`)
   redirect('/transactions')
 }
 
@@ -228,6 +232,8 @@ export async function deleteTransaction(id: string): Promise<void> {
 
   if (balanceError) throw new Error(balanceError.message)
 
-  revalidatePath('/transactions')
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
+  updateTag(`reports-${householdId}`)
   redirect('/transactions')
 }

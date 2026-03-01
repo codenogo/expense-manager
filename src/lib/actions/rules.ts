@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getHouseholdId } from '@/lib/auth'
 import type { Tables } from '@/types/database'
@@ -47,7 +47,7 @@ export async function createRule(formData: FormData): Promise<{ error?: string }
 
   if (error) return { error: error.message }
 
-  revalidatePath('/settings/rules')
+  updateTag(`rules-${householdId}`)
 }
 
 export async function updateRule(
@@ -82,7 +82,7 @@ export async function updateRule(
 
   if (error) return { error: error.message }
 
-  revalidatePath('/settings/rules')
+  updateTag(`rules-${householdId}`)
 }
 
 export async function deleteRule(id: string): Promise<{ error?: string } | void> {
@@ -93,5 +93,5 @@ export async function deleteRule(id: string): Promise<{ error?: string } | void>
 
   if (error) return { error: error.message }
 
-  revalidatePath('/settings/rules')
+  updateTag(`rules-${householdId}`)
 }

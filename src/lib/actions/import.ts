@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getHouseholdId, getAuthContext } from '@/lib/auth'
 
@@ -68,7 +68,9 @@ export async function bulkCreateTransactions(
 
   if (balanceError) return { imported: 0, error: balanceError.message }
 
-  revalidatePath('/transactions')
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
+  updateTag(`reports-${householdId}`)
 
   return { imported: rows.length }
 }

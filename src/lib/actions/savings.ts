@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getHouseholdId, getAuthContext } from '@/lib/auth'
@@ -173,5 +173,6 @@ export async function addContribution(id: string, formData: FormData): Promise<v
     if (updateError) throw new Error(updateError.message)
   }
 
-  revalidatePath('/savings')
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
 }

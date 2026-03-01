@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getHouseholdId, getAuthContext } from '@/lib/auth'
@@ -184,5 +184,6 @@ export async function recordPayment(id: string, formData: FormData): Promise<voi
     if (updateError) throw new Error(updateError.message)
   }
 
-  revalidatePath('/debts')
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
 }
