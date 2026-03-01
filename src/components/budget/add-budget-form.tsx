@@ -3,6 +3,15 @@
 import { useActionState } from 'react'
 import { setBudget } from '@/lib/actions/budgets'
 import type { Tables } from '@/types/database'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type ActionState = { error?: string } | null
 
@@ -24,7 +33,7 @@ export function AddBudgetForm({ categories, budgetedCategoryIds, month }: AddBud
 
   if (availableCategories.length === 0) {
     return (
-      <p className="text-sm text-slate-500 italic">All categories have budgets set for this month.</p>
+      <p className="text-sm text-muted-foreground italic">All categories have budgets set for this month.</p>
     )
   }
 
@@ -33,42 +42,38 @@ export function AddBudgetForm({ categories, budgetedCategoryIds, month }: AddBud
       <input type="hidden" name="month" value={month} />
 
       {state?.error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
           {state.error}
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row gap-3">
-        <select
-          name="category_id"
-          required
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">Select category…</option>
-          {availableCategories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+        <Select name="category_id" required>
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder="Select category..." />
+          </SelectTrigger>
+          <SelectContent>
+            {availableCategories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <input
+        <Input
           type="number"
           name="amount"
           required
           min="0.01"
           step="0.01"
           placeholder="Amount (KES)"
-          className="w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full sm:w-40"
         />
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {pending ? 'Adding…' : 'Add Budget'}
-        </button>
+        <Button type="submit" disabled={pending}>
+          {pending ? 'Adding...' : 'Add Budget'}
+        </Button>
       </div>
     </form>
   )

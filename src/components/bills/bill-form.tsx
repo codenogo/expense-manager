@@ -3,6 +3,18 @@
 import Link from 'next/link'
 import { createRecurring, updateRecurring } from '@/lib/actions/recurring'
 import type { Tables } from '@/types/database'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { DatePicker } from '@/components/ui/date-picker'
+import { Combobox } from '@/components/ui/combobox'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface BillFormProps {
   accounts: Tables<'accounts'>[]
@@ -22,34 +34,32 @@ export function BillForm({ accounts, categories, item }: BillFormProps) {
 
   const defaultAmount = item ? (item.amount / 100).toFixed(2) : ''
 
+  const categoryOptions = categories.map((c) => ({ value: c.id, label: c.name }))
+  const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name }))
+
   return (
     <div className="max-w-lg">
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-6">
+      <div className="bg-card rounded-xl shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-6">
           {isEdit ? 'Edit Bill' : 'New Bill'}
         </h2>
 
         <form action={action} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
-              Name
-            </label>
-            <input
+            <Label htmlFor="name" className="mb-1">Name</Label>
+            <Input
               id="name"
               name="name"
               type="text"
               required
               defaultValue={item?.name ?? ''}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g. Netflix, Rent, Electricity"
             />
           </div>
 
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-slate-700 mb-1">
-              Amount (KES)
-            </label>
-            <input
+            <Label htmlFor="amount" className="mb-1">Amount (KES)</Label>
+            <Input
               id="amount"
               name="amount"
               type="number"
@@ -57,98 +67,73 @@ export function BillForm({ accounts, categories, item }: BillFormProps) {
               min="0"
               required
               defaultValue={defaultAmount}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="0.00"
             />
           </div>
 
           <div>
-            <label htmlFor="frequency" className="block text-sm font-medium text-slate-700 mb-1">
-              Frequency
-            </label>
-            <select
-              id="frequency"
-              name="frequency"
-              required
-              defaultValue={item?.frequency ?? 'monthly'}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {Object.entries(FREQUENCY_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <Label className="mb-1">Frequency</Label>
+            <Select name="frequency" defaultValue={item?.frequency ?? 'monthly'}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(FREQUENCY_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <label htmlFor="next_due_date" className="block text-sm font-medium text-slate-700 mb-1">
-              Next Due Date
-            </label>
-            <input
-              id="next_due_date"
+            <Label className="mb-1">Next Due Date</Label>
+            <DatePicker
               name="next_due_date"
-              type="date"
               required
               defaultValue={item?.next_due_date ?? ''}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label htmlFor="category_id" className="block text-sm font-medium text-slate-700 mb-1">
-              Category <span className="text-slate-400">(optional)</span>
-            </label>
-            <select
-              id="category_id"
+            <Label className="mb-1">
+              Category <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
+            <Combobox
               name="category_id"
+              options={categoryOptions}
               defaultValue={item?.category_id ?? ''}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">None</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+              placeholder="None"
+              searchPlaceholder="Search categories..."
+              emptyMessage="No categories found."
+            />
           </div>
 
           <div>
-            <label htmlFor="account_id" className="block text-sm font-medium text-slate-700 mb-1">
-              Account <span className="text-slate-400">(optional)</span>
-            </label>
-            <select
-              id="account_id"
+            <Label className="mb-1">
+              Account <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
+            <Combobox
               name="account_id"
+              options={accountOptions}
               defaultValue={item?.account_id ?? ''}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">None</option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-slate-400 mt-1">
+              placeholder="None"
+              searchPlaceholder="Search accounts..."
+              emptyMessage="No accounts found."
+            />
+            <p className="text-xs text-muted-foreground mt-1">
               Set an account to auto-create transactions when marking paid.
             </p>
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-            >
+            <Button type="submit">
               {isEdit ? 'Save Changes' : 'Create Bill'}
-            </button>
-            <Link
-              href="/bills"
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Cancel
-            </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/bills">Cancel</Link>
+            </Button>
           </div>
         </form>
       </div>
