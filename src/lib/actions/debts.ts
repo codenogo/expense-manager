@@ -4,6 +4,7 @@ import { updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getHouseholdId, getAuthContext } from '@/lib/auth'
+import { syncLoanAccountBalance } from '@/lib/actions/loan-account'
 import type { Tables } from '@/types/database'
 
 export async function getDebts(): Promise<Tables<'debts'>[]> {
@@ -65,6 +66,7 @@ export async function createDebt(formData: FormData): Promise<void> {
     redirect('/debts?error=Failed+to+create+debt')
   }
 
+  await syncLoanAccountBalance(householdId)
   redirect('/debts?toast=Debt+created')
 }
 
@@ -98,6 +100,7 @@ export async function updateDebt(id: string, formData: FormData): Promise<void> 
     redirect('/debts?error=Failed+to+update+debt')
   }
 
+  await syncLoanAccountBalance(householdId)
   redirect('/debts?toast=Debt+updated')
 }
 
@@ -115,6 +118,7 @@ export async function deleteDebt(id: string): Promise<void> {
     redirect('/debts?error=Failed+to+delete+debt')
   }
 
+  await syncLoanAccountBalance(householdId)
   redirect('/debts?toast=Debt+deleted')
 }
 

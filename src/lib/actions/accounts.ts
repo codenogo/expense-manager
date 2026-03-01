@@ -60,6 +60,10 @@ export async function createAccount(formData: FormData): Promise<void> {
   const balanceKES = parseFloat(formData.get('balance') as string) || 0
   const balanceCents = Math.round(balanceKES * 100)
 
+  if (type === 'loan') {
+    redirect('/accounts?error=Loan+accounts+are+automatically+managed')
+  }
+
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
@@ -87,6 +91,17 @@ export async function updateAccount(id: string, formData: FormData): Promise<voi
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
+  const { data: existing } = await supabase
+    .from('accounts')
+    .select('is_system_managed')
+    .eq('id', id)
+    .eq('household_id', householdId)
+    .single()
+
+  if (existing?.is_system_managed) {
+    redirect('/accounts?error=Cannot+edit+system-managed+account')
+  }
+
   const { error } = await supabase
     .from('accounts')
     .update({ name, type, balance: balanceCents })
@@ -104,6 +119,17 @@ export async function updateAccount(id: string, formData: FormData): Promise<voi
 export async function deleteAccount(id: string): Promise<void> {
   const supabase = await createClient()
   const householdId = await getHouseholdId()
+
+  const { data: existing } = await supabase
+    .from('accounts')
+    .select('is_system_managed')
+    .eq('id', id)
+    .eq('household_id', householdId)
+    .single()
+
+  if (existing?.is_system_managed) {
+    redirect('/accounts?error=Cannot+delete+system-managed+account')
+  }
 
   const { error } = await supabase
     .from('accounts')
