@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "feature": "progressive-enhancement",
+  "displayName": "Progressive Enhancement — Caching, Charts, Search, Notifications, Forecasting",
+  "decisions": [
+    {
+      "area": "caching",
+      "decision": "React.cache() for per-request dedup + cacheTag/cacheLife for cross-request caching",
+      "rationale": "Eliminates 11 duplicate getHouseholdId() implementations and double-fetch in layout. No external cache needed — in-process only. revalidateTag() replaces all revalidatePath() calls for surgical invalidation."
+    },
+    {
+      "area": "shared-auth",
+      "decision": "Extract single getAuthContext() with React.cache() returning { user, householdId, supabase }",
+      "rationale": "One auth call per request instead of N. All 11 action files import from shared module. Layout uses same cached context."
+    },
+    {
+      "area": "realtime",
+      "decision": "Supabase Realtime subscription in (app)/layout.tsx for household-scoped cache invalidation",
+      "rationale": "When household member A edits data, member B's cached pages get invalidated via revalidateTag(). Thin client component wrapper in layout subscribes to household channel."
+    },
+    {
+      "area": "charts",
+      "decision": "Recharts library replacing all 4 hand-rolled chart components",
+      "rationale": "Hand-rolled CSS charts lack tooltips, interactivity, and chart type variety. Recharts is the user's preferred library. Server components pass data, thin client wrappers render charts."
+    },
+    {
+      "area": "reports",
+      "decision": "New report pages: monthly trends (LineChart), income vs expenses (BarChart), category breakdown (PieChart)",
+      "rationale": "Recharts enables proper report visualizations. Reports are server-rendered with data from cached server actions."
+    },
+    {
+      "area": "search",
+      "decision": "pg_trgm extension with GIN index on transactions.notes for fuzzy text search",
+      "rationale": "Supabase built-in, no external search engine needed at household scale. Uses similarity() or ILIKE with trigram index for fast fuzzy matching."
+    },
+    {
+      "area": "search-ui",
+      "decision": "Inline search bar on transactions page with real-time filtering",
+      "rationale": "Simpler than command palette for initial implementation. Server action performs search, results update in-place. Can add Cmd+K later."
+    },
+    {
+      "area": "notifications-storage",
+      "decision": "notifications table in Supabase (id, household_id, user_id, type, title, body, read, created_at)",
+      "rationale": "Standard notification pattern. Scoped to household, read status per user. Realtime subscription for live updates."
+    },
+    {
+      "area": "notifications-delivery",
+      "decision": "pg_cron nightly job → Supabase Edge Function → check overdue bills & budget overspend → insert notification + email via Resend",
+      "rationale": "No background worker needed. pg_cron runs in Supabase, Edge Function handles logic. Nightly batch is sufficient for bill/budget alerts. Resend free tier (100 emails/day) covers household use."
+    },
+    {
+      "area": "notifications-ui",
+      "decision": "Notification bell in sidebar with unread count, dropdown list with mark-as-read",
+      "rationale": "Standard UX pattern. Realtime subscription updates count without polling. Bell badge shows unread count."
+    },
+    {
+      "area": "forecasting",
+      "decision": "Pure server-side computation — projected balances, budget runway, bill calendar",
+      "rationale": "No background processing needed. Projected balance = sum scheduled income - scheduled expenses over N months. Budget runway = remaining / daily rate. Bill calendar = query recurring items + project dates."
+    },
+    {
+      "area": "infrastructure",
+      "decision": "Stay on Vercel + Supabase, no Docker/Redis/workers",
+      "rationale": "Progressive Enhancement philosophy — use what Supabase already provides (pg_trgm, pg_cron, Edge Functions, Realtime). Clean upgrade path to self-hosted (Option B) if needed later."
+    }
+  ],
+  "constraints": [
+    "Performance first — caching and faster loads are top priority (Phase 1)",
+    "No new infrastructure — leverage Supabase built-ins only",
+    "Existing stack: Next.js 16, React 19, Supabase, Tailwind 4",
+    "Recharts for charting (user preference)",
+    "Supabase free-tier Edge Function limits — mitigate with nightly batch",
+    "pg_cron granularity is minutes, not seconds — acceptable for bill/budget alerts",
+    "Must not break existing features during migration"
+  ],
+  "openQuestions": [
+    "Which Supabase tables should trigger Realtime subscriptions? (start with transactions, budgets, bills)",
+    "Should search extend beyond transactions.notes to include category names and account names?",
+    "Email notification opt-in/opt-out — per-user setting or household-level?",
+    "Forecasting time horizon — default 3 months or configurable?"
+  ],
+  "relatedCode": [
+    "src/lib/actions/accounts.ts",
+    "src/lib/actions/budgets.ts",
+    "src/lib/actions/categories.ts",
+    "src/lib/actions/dashboard.ts",
+    "src/lib/actions/debts.ts",
+    "src/lib/actions/household.ts",
+    "src/lib/actions/import.ts",
+    "src/lib/actions/recurring.ts",
+    "src/lib/actions/reports.ts",
+    "src/lib/actions/rules.ts",
+    "src/lib/actions/savings.ts",
+    "src/lib/actions/transactions.ts",
+    "src/lib/supabase/server.ts",
+    "src/app/(app)/layout.tsx",
+    "src/app/(app)/dashboard/page.tsx",
+    "src/components/dashboard/spending-trends.tsx",
+    "src/components/dashboard/income-vs-expenses.tsx",
+    "src/components/dashboard/category-breakdown.tsx",
+    "src/components/dashboard/summary-cards.tsx",
+    "next.config.ts"
+  ],
+  "phases": [
+    {
+      "id": 1,
+      "name": "Cache + Shared Auth",
+      "scope": "Extract getAuthContext() with React.cache(), add cacheTag/cacheLife to read actions, revalidateTag on mutations, Realtime listener in layout"
+    },
+    {
+      "id": 2,
+      "name": "Recharts + Reports",
+      "scope": "Install Recharts, replace 4 hand-rolled charts, add monthly/yearly report pages"
+    },
+    {
+      "id": 3,
+      "name": "Search + Filters",
+      "scope": "Enable pg_trgm, GIN index on transactions.notes, search server action + search UI on transactions page"
+    },
+    {
+      "id": 4,
+      "name": "Notifications",
+      "scope": "notifications table, pg_cron nightly job, Edge Function for email (Resend), notification bell in sidebar with Realtime"
+    },
+    {
+      "id": 5,
+      "name": "Forecasting",
+      "scope": "Projected balance calculator, budget runway, bill calendar view (30/60/90 days)"
+    }
+  ],
+  "timestamp": "2026-03-01T14:00:00Z"
+}

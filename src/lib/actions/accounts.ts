@@ -1,68 +1,57 @@
 'use server'
 
+import { unstable_cache, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getHouseholdId } from '@/lib/auth'
 import type { Tables } from '@/types/database'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) {
-    redirect('/sign-in')
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !profile?.household_id) {
-    redirect('/onboarding')
-  }
-
-  return profile.household_id
-}
 
 export async function getAccounts(): Promise<Tables<'accounts'>[]> {
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const { data, error } = await supabase
-    .from('accounts')
-    .select('*')
-    .eq('household_id', householdId)
-    .order('type')
-    .order('name')
+  return unstable_cache(
+    async () => {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('household_id', householdId)
+        .order('type')
+        .order('name')
 
-  if (error) {
-    throw new Error(error.message)
-  }
+      if (error) {
+        throw new Error(error.message)
+      }
 
-  return data ?? []
+      return data ?? []
+    },
+    ['accounts', householdId],
+    { tags: [`accounts-${householdId}`], revalidate: 300 }
+  )()
 }
 
 export async function getAccount(id: string): Promise<Tables<'accounts'>> {
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const { data, error } = await supabase
-    .from('accounts')
-    .select('*')
-    .eq('id', id)
-    .eq('household_id', householdId)
-    .single()
+  return unstable_cache(
+    async () => {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('id', id)
+        .eq('household_id', householdId)
+        .single()
 
-  if (error || !data) {
-    throw new Error(error?.message ?? 'Account not found')
-  }
+      if (error || !data) {
+        throw new Error(error?.message ?? 'Account not found')
+      }
 
-  return data
+      return data
+    },
+    ['account', householdId, id],
+    { tags: [`accounts-${householdId}`], revalidate: 300 }
+  )()
 }
 
 export async function createAccount(formData: FormData): Promise<void> {
@@ -85,6 +74,7 @@ export async function createAccount(formData: FormData): Promise<void> {
     throw new Error(error.message)
   }
 
+  updateTag(`accounts-${householdId}`)
   redirect('/accounts')
 }
 
@@ -107,6 +97,7 @@ export async function updateAccount(id: string, formData: FormData): Promise<voi
     throw new Error(error.message)
   }
 
+  updateTag(`accounts-${householdId}`)
   redirect('/accounts')
 }
 
@@ -124,5 +115,6 @@ export async function deleteAccount(id: string): Promise<void> {
     throw new Error(error.message)
   }
 
+  updateTag(`accounts-${householdId}`)
   redirect('/accounts')
 }

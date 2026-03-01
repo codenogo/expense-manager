@@ -18,23 +18,11 @@ export async function createHousehold(formData: FormData): Promise<void> {
     redirect('/sign-in')
   }
 
-  const { data: household, error: householdError } = await supabase
-    .from('households')
-    .insert({ name })
-    .select('id')
-    .single()
+  const { data: householdId, error: rpcError } = await supabase
+    .rpc('create_household' as never, { household_name: name } as never)
 
-  if (householdError || !household) {
-    throw new Error(householdError?.message ?? 'Failed to create household')
-  }
-
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ household_id: household.id, role: 'admin' })
-    .eq('id', user.id)
-
-  if (profileError) {
-    throw new Error(profileError.message)
+  if (rpcError || !householdId) {
+    throw new Error(rpcError?.message ?? 'Failed to create household')
   }
 
   redirect('/dashboard')

@@ -1,24 +1,23 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { getHousehold } from '@/lib/actions/household'
+import { getAuthContext } from '@/lib/auth'
 import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
+import { RealtimeListener } from '@/components/realtime/realtime-listener'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  const { supabase, householdId } = await getAuthContext()
 
-  const { household } = await getHousehold()
-  if (!household) redirect('/onboarding')
+  const { data: household } = await supabase
+    .from('households')
+    .select('name')
+    .eq('id', householdId)
+    .single()
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Sidebar householdName={household.name} />
+      <Sidebar householdName={household?.name ?? 'Home'} />
       <MobileNav />
       <main className="md:ml-64 pb-16 md:pb-0">{children}</main>
+      <RealtimeListener householdId={householdId} />
     </div>
   )
 }

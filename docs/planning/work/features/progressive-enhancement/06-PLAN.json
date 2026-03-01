@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 2,
+  "feature": "progressive-enhancement",
+  "planNumber": "06",
+  "goal": "Add forecasting features: projected balances, budget runway, and bill calendar view",
+  "tasks": [
+    {
+      "name": "Create forecasting server actions",
+      "files": [
+        "src/lib/actions/forecasting.ts"
+      ],
+      "microSteps": [
+        "Create src/lib/actions/forecasting.ts with 'use server' directive",
+        "Implement getProjectedBalance(months: number) — sum account balances + projected income - projected expenses over N months using recurring items",
+        "Implement getBudgetRunway() — for each active budget: (amount - spent) / daily_spend_rate = days remaining",
+        "Implement getBillCalendar(days: number) — query recurring items, project next occurrences for 30/60/90 days",
+        "Use shared getHouseholdId() for auth"
+      ],
+      "tdd": {
+        "required": true,
+        "failingVerify": ["npm test -- --run src/lib/actions/__tests__/forecasting.test.ts 2>&1 | tail -10"],
+        "passingVerify": ["npm test -- --run src/lib/actions/__tests__/forecasting.test.ts 2>&1 | tail -10"]
+      },
+      "action": "Create forecasting server actions. Write tests first for the pure computation functions (projectBalance, calculateRunway, projectBillDates) — these are testable without Supabase. Then implement the server actions that call these functions with real data.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+        "npm test -- --run src/lib/actions/__tests__/forecasting.test.ts 2>&1 | tail -10"
+      ]
+    },
+    {
+      "name": "Create forecasting page with projected balance and budget runway",
+      "files": [
+        "src/app/(app)/forecasting/page.tsx",
+        "src/app/(app)/forecasting/loading.tsx",
+        "src/components/sidebar.tsx"
+      ],
+      "microSteps": [
+        "Create forecasting/page.tsx as server component",
+        "Show projected balance chart (LineChart — balance over next 3 months)",
+        "Show budget runway cards (days remaining per budget category)",
+        "Create forecasting/loading.tsx skeleton",
+        "Add Forecasting link to sidebar"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI page — verified via build + manual inspection."
+      },
+      "action": "Create the forecasting page with projected balance LineChart (using Recharts from Plan 03) and budget runway display. Server component fetches data from forecasting actions, passes to chart wrappers.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+        "npm run build 2>&1 | tail -20"
+      ],
+      "blockedBy": [0]
+    },
+    {
+      "name": "Add bill calendar view",
+      "files": [
+        "src/components/forecasting/bill-calendar.tsx",
+        "src/app/(app)/forecasting/page.tsx"
+      ],
+      "microSteps": [
+        "Create bill-calendar.tsx — displays upcoming bills in a timeline/list view",
+        "Group by week or month, show amount and due date",
+        "Color-code: overdue (red), due soon (amber), upcoming (green)",
+        "Add to forecasting page below the projected balance section",
+        "Allow toggling between 30/60/90 day views"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "UI component — verified via build + manual inspection."
+      },
+      "action": "Create a bill calendar component showing upcoming bills over the next 30/60/90 days. Uses getBillCalendar() server action. Timeline view grouped by week with color-coded status indicators.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+        "npm run build 2>&1 | tail -20"
+      ],
+      "blockedBy": [0, 1]
+    }
+  ],
+  "planVerify": [
+    "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+    "npm run build 2>&1 | tail -20"
+  ],
+  "commitMessage": "feat(forecasting): add projected balances, budget runway, and bill calendar",
+  "timestamp": "2026-03-01T15:00:00Z"
+}

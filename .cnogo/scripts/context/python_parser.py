@@ -9,63 +9,16 @@ Zero external dependencies — stdlib only.
 from __future__ import annotations
 
 import ast
-from dataclasses import dataclass, field
 from typing import Any
 
-
-@dataclass
-class SymbolInfo:
-    """A symbol (function, class, method) extracted from source."""
-
-    name: str
-    kind: str  # "function", "class", "method"
-    start_line: int
-    end_line: int
-    signature: str = ""
-    class_name: str = ""
-    decorators: list[str] = field(default_factory=list)
-    docstring: str = ""
-
-
-@dataclass
-class ImportInfo:
-    """An import statement extracted from source."""
-
-    module: str
-    names: list[str] = field(default_factory=list)
-    is_relative: bool = False
-    level: int = 0
-
-
-@dataclass
-class CallInfo:
-    """A function/method call extracted from source."""
-
-    name: str
-    line: int
-    receiver: str = ""
-
-
-@dataclass
-class TypeRef:
-    """A type reference extracted from annotations."""
-
-    name: str
-    kind: str  # "param", "return"
-    line: int
-
-
-@dataclass
-class ParseResult:
-    """Complete parse result for a single file."""
-
-    file_path: str
-    symbols: list[SymbolInfo] = field(default_factory=list)
-    imports: list[ImportInfo] = field(default_factory=list)
-    calls: list[CallInfo] = field(default_factory=list)
-    heritage: list[tuple[str, str, str]] = field(default_factory=list)
-    type_refs: list[TypeRef] = field(default_factory=list)
-    exports: list[str] = field(default_factory=list)
+# Re-export parse types for backward compatibility — all phases import from here
+from scripts.context.parse_types import (  # noqa: F401
+    CallInfo,
+    ImportInfo,
+    ParseResult,
+    SymbolInfo,
+    TypeRef,
+)
 
 
 def _build_signature(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:

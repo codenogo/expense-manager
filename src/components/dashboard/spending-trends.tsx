@@ -1,5 +1,3 @@
-'use client'
-
 interface SpendingTrendsProps {
   data: { month: string; label: string; expenses: number }[]
 }

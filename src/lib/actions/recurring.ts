@@ -1,38 +1,30 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { unstable_cache, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getHouseholdId, getAuthContext } from '@/lib/auth'
 import type { Tables } from '@/types/database'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-  if (!profile?.household_id) redirect('/onboarding')
-  return profile.household_id
-}
 
 export async function getRecurringItems(): Promise<Tables<'recurring_items'>[]> {
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const { data, error } = await supabase
-    .from('recurring_items')
-    .select('*')
-    .eq('household_id', householdId)
-    .order('next_due_date', { ascending: true })
+  return unstable_cache(
+    async () => {
+      const { data, error } = await supabase
+        .from('recurring_items')
+        .select('*')
+        .eq('household_id', householdId)
+        .order('next_due_date', { ascending: true })
 
-  if (error) throw new Error(error.message)
+      if (error) throw new Error(error.message)
 
-  return data ?? []
+      return data ?? []
+    },
+    ['recurring', householdId],
+    { tags: [`recurring-${householdId}`], revalidate: 900 }
+  )()
 }
 
 export async function createRecurring(formData: FormData): Promise<void> {
@@ -59,6 +51,7 @@ export async function createRecurring(formData: FormData): Promise<void> {
 
   if (error) throw new Error(error.message)
 
+  updateTag(`recurring-${householdId}`)
   redirect('/bills')
 }
 
@@ -89,6 +82,7 @@ export async function updateRecurring(id: string, formData: FormData): Promise<v
 
   if (error) throw new Error(error.message)
 
+  updateTag(`recurring-${householdId}`)
   redirect('/bills')
 }
 
@@ -104,6 +98,7 @@ export async function deleteRecurring(id: string): Promise<void> {
 
   if (error) throw new Error(error.message)
 
+  updateTag(`recurring-${householdId}`)
   redirect('/bills')
 }
 
@@ -111,10 +106,7 @@ export async function markPaid(id: string): Promise<void> {
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  const { user } = await getAuthContext()
 
   const { data: item, error: fetchError } = await supabase
     .from('recurring_items')
@@ -182,5 +174,7 @@ export async function markPaid(id: string): Promise<void> {
 
   if (updateError) throw new Error(updateError.message)
 
-  revalidatePath('/bills')
+  updateTag(`recurring-${householdId}`)
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
 }

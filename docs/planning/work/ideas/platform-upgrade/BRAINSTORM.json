@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "topic": "Platform Upgrade — Caching, Performance, Mature Features",
+  "slug": "platform-upgrade",
+  "timestamp": "2026-03-01T12:00:00Z",
+  "questionsAsked": [
+    "What's the primary motivation — performance or new features?",
+    "Is there a deployment/infra constraint?",
+    "Which mature features are most interesting?",
+    "Charting library preference?"
+  ],
+  "constraints": [
+    "Performance first — caching and faster loads are top priority",
+    "Self-hosting is acceptable (Docker/VPS)",
+    "Wants all four feature areas: reports, forecasting, notifications, search",
+    "Recharts for proper charting",
+    "Existing stack: Next.js 16, React 19, Supabase, Tailwind 4"
+  ],
+  "candidates": [
+    {
+      "name": "Cache-First Architecture",
+      "summary": "Layer caching at three levels (React.cache, Next.js cacheTag, Supabase Realtime invalidation). Shared auth, Recharts. Stays on Vercel+Supabase.",
+      "risks": [
+        "unstable_cache API churn in Next.js — mitigate with wrapper",
+        "No background jobs for notifications — needs separate solution"
+      ],
+      "mvp": [
+        "Shared getAuthContext() with React.cache()",
+        "cacheTag on read actions, revalidateTag on mutations",
+        "Recharts dashboard charts",
+        "Dashboard < 200ms repeat load"
+      ]
+    },
+    {
+      "name": "Self-Hosted Platform (Redis + Workers)",
+      "summary": "Docker deployment with Redis caching + BullMQ job queues. Background notifications, scheduled reports, optional Meilisearch for search.",
+      "risks": [
+        "Ops burden — Docker, Redis, worker health monitoring",
+        "Self-hosting reliability — mitigate with restart policies"
+      ],
+      "mvp": [
+        "Docker compose with Next.js + Redis + worker",
+        "Redis cache adapter for cross-instance caching",
+        "Bill reminder emails via BullMQ + Resend",
+        "Transaction search via Meilisearch"
+      ]
+    },
+    {
+      "name": "Progressive Enhancement (Pragmatic Middle)",
+      "summary": "Use Supabase built-ins (pg_trgm, pg_cron, Edge Functions, Realtime) instead of self-hosting Redis/workers. Cache + Recharts + search + notifications with zero new infra.",
+      "risks": [
+        "Supabase free-tier Edge Function limits — mitigate with batching",
+        "pg_cron coarser than BullMQ — mitigate with nightly batch approach"
+      ],
+      "mvp": [
+        "Shared auth + cacheTag caching",
+        "Recharts for all dashboard charts",
+        "pg_trgm transaction search",
+        "Nightly bill/budget alert emails via pg_cron + Edge Function"
+      ]
+    }
+  ],
+  "recommendation": {
+    "primary": "Progressive Enhancement (Option C)",
+    "backup": "Self-Hosted Platform (Option B)",
+    "rationale": "Gets caching, Recharts, search, and notifications without adding Docker/Redis ops burden. Supabase already has pg_trgm, pg_cron, Edge Functions, and Realtime. Clean upgrade path to Option B if needed later."
+  }
+}

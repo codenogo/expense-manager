@@ -1,56 +1,29 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { unstable_cache, updateTag } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getHouseholdId } from '@/lib/auth'
 import type { Tables } from '@/types/database'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) redirect('/sign-in')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.household_id) redirect('/onboarding')
-
-  return profile.household_id
-}
 
 export async function getCategories(): Promise<Tables<'categories'>[]> {
   const supabase = await createClient()
+  const householdId = await getHouseholdId()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  return unstable_cache(
+    async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('household_id', householdId)
+        .order('name')
 
-  if (!user) redirect('/sign-in')
+      if (error) throw new Error(error.message)
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.household_id) redirect('/onboarding')
-
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('household_id', profile.household_id)
-    .order('name')
-
-  if (error) throw new Error(error.message)
-
-  return data ?? []
+      return data ?? []
+    },
+    ['categories', householdId],
+    { tags: [`categories-${householdId}`], revalidate: 900 }
+  )()
 }
 
 export async function createCategory(formData: FormData): Promise<{ error?: string } | void> {
@@ -74,7 +47,7 @@ export async function createCategory(formData: FormData): Promise<{ error?: stri
 
   if (error) return { error: error.message }
 
-  revalidatePath('/categories')
+  updateTag(`categories-${householdId}`)
 }
 
 export async function updateCategory(
@@ -104,7 +77,7 @@ export async function updateCategory(
 
   if (error) return { error: error.message }
 
-  revalidatePath('/categories')
+  updateTag(`categories-${householdId}`)
 }
 
 export async function deleteCategory(id: string): Promise<{ error?: string } | void> {
@@ -127,5 +100,5 @@ export async function deleteCategory(id: string): Promise<{ error?: string } | v
 
   if (error) return { error: error.message }
 
-  revalidatePath('/categories')
+  updateTag(`categories-${householdId}`)
 }

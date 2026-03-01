@@ -1,24 +1,10 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getHouseholdId, getAuthContext } from '@/lib/auth'
 import type { Tables } from '@/types/database'
-
-async function getHouseholdId(): Promise<string> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('household_id')
-    .eq('id', user.id)
-    .single()
-  if (!profile?.household_id) redirect('/onboarding')
-  return profile.household_id
-}
 
 export async function getDebts(): Promise<Tables<'debts'>[]> {
   const supabase = await createClient()
@@ -134,10 +120,7 @@ export async function recordPayment(id: string, formData: FormData): Promise<voi
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  const { user } = await getAuthContext()
 
   const { data: debt, error: debtError } = await supabase
     .from('debts')
@@ -150,29 +133,31 @@ export async function recordPayment(id: string, formData: FormData): Promise<voi
 
   const newBalance = debt.balance - amountCents
 
-  const { error: updateError } = await supabase
-    .from('debts')
-    .update({ balance: newBalance })
-    .eq('id', id)
-    .eq('household_id', householdId)
-
-  if (updateError) throw new Error(updateError.message)
-
   if (accountId) {
     const today = new Date().toISOString().split('T')[0]
 
-    const { error: txError } = await supabase.from('transactions').insert({
-      household_id: householdId,
-      account_id: accountId,
-      amount: amountCents,
-      type: 'expense',
-      date: today,
-      notes: `Debt payment`,
-      created_by: user.id,
-    })
+    // Run debt update and transaction insert in parallel
+    const [{ error: updateError }, { error: txError }] = await Promise.all([
+      supabase
+        .from('debts')
+        .update({ balance: newBalance })
+        .eq('id', id)
+        .eq('household_id', householdId),
+      supabase.from('transactions').insert({
+        household_id: householdId,
+        account_id: accountId,
+        amount: amountCents,
+        type: 'expense',
+        date: today,
+        notes: 'Debt payment',
+        created_by: user.id,
+      }),
+    ])
 
+    if (updateError) throw new Error(updateError.message)
     if (txError) throw new Error(txError.message)
 
+    // Then update account balance
     const { data: account, error: accountError } = await supabase
       .from('accounts')
       .select('balance')
@@ -189,7 +174,16 @@ export async function recordPayment(id: string, formData: FormData): Promise<voi
       .eq('household_id', householdId)
 
     if (balanceError) throw new Error(balanceError.message)
+  } else {
+    const { error: updateError } = await supabase
+      .from('debts')
+      .update({ balance: newBalance })
+      .eq('id', id)
+      .eq('household_id', householdId)
+
+    if (updateError) throw new Error(updateError.message)
   }
 
-  revalidatePath('/debts')
+  updateTag(`dashboard-${householdId}`)
+  updateTag(`accounts-${householdId}`)
 }

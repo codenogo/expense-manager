@@ -123,7 +123,7 @@ export function ImportPreview({
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
               {transactions.map((tx, i) => (
-                <tr key={i}>
+                <tr key={`${tx.date}-${tx.type}-${tx.amount}-${i}`}>
                   <td className="px-3 py-2 text-slate-700 whitespace-nowrap">{tx.date}</td>
                   <td className="px-3 py-2">
                     <span

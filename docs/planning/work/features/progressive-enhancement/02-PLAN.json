@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 2,
+  "feature": "progressive-enhancement",
+  "planNumber": "02",
+  "goal": "Add cacheTag/cacheLife to read actions, replace revalidatePath with revalidateTag, add Supabase Realtime for cache invalidation",
+  "tasks": [
+    {
+      "name": "Add cacheTag to read actions",
+      "files": [
+        "src/lib/actions/dashboard.ts",
+        "src/lib/actions/budgets.ts",
+        "src/lib/actions/categories.ts",
+        "src/lib/actions/accounts.ts",
+        "src/lib/actions/reports.ts",
+        "src/lib/actions/recurring.ts"
+      ],
+      "microSteps": [
+        "Import cacheTag and cacheLife from 'next/cache' in each read action file",
+        "Wrap read functions (getDashboardData, getBudgets, getCategories, getAccounts, getReports, getRecurringItems) with 'use cache' directive or unstable_cache",
+        "Define tag naming convention: 'dashboard-{householdId}', 'budgets-{householdId}', etc.",
+        "Set appropriate cacheLife (e.g., 5 minutes for dashboard, 15 minutes for categories)"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Caching layer is transparent to callers — same return types. Verified via type check + manual testing."
+      },
+      "action": "Add Next.js caching to all read-only server actions. Use cacheTag() with household-scoped tags (e.g., 'dashboard-{householdId}') so invalidation is precise. Use cacheLife() to set TTLs. The exact API depends on Next.js 16 — check if 'use cache' directive is stable or if unstable_cache wrapper is needed.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20"
+      ]
+    },
+    {
+      "name": "Replace revalidatePath with revalidateTag in mutations",
+      "files": [
+        "src/lib/actions/budgets.ts",
+        "src/lib/actions/categories.ts",
+        "src/lib/actions/transactions.ts",
+        "src/lib/actions/recurring.ts",
+        "src/lib/actions/debts.ts",
+        "src/lib/actions/savings.ts",
+        "src/lib/actions/rules.ts",
+        "src/lib/actions/import.ts"
+      ],
+      "microSteps": [
+        "In each mutation function, replace revalidatePath('/path') with revalidateTag('tag-{householdId}')",
+        "Budget mutations: revalidateTag('budgets-{householdId}') + revalidateTag('dashboard-{householdId}')",
+        "Transaction mutations: revalidateTag('transactions-{householdId}') + revalidateTag('dashboard-{householdId}')",
+        "Category mutations: revalidateTag('categories-{householdId}')",
+        "Import: revalidateTag('transactions-{householdId}')",
+        "Cross-invalidate dashboard tag when transactions/budgets change"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Invalidation strategy change — same UX behavior. Verified via build + manual testing."
+      },
+      "action": "Replace all 15 revalidatePath() calls with revalidateTag() using the tag naming convention from Task 1. Mutations that affect dashboard data should also invalidate the dashboard tag. Import revalidateTag from 'next/cache'.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20"
+      ],
+      "blockedBy": [0]
+    },
+    {
+      "name": "Add Supabase Realtime listener for cross-member cache invalidation",
+      "files": [
+        "src/components/realtime/realtime-listener.tsx",
+        "src/app/(app)/layout.tsx"
+      ],
+      "microSteps": [
+        "Create src/components/realtime/realtime-listener.tsx as a 'use client' component",
+        "Subscribe to Supabase Realtime channel for household-scoped changes on transactions, budgets, bills tables",
+        "On change event, call a server action that runs revalidateTag() for the affected tags",
+        "Add RealtimeListener to the app layout, passing householdId as prop",
+        "Handle cleanup (unsubscribe) in useEffect return"
+      ],
+      "tdd": {
+        "required": false,
+        "reason": "Realtime subscription requires live Supabase connection — integration test. Verified via build + manual testing."
+      },
+      "action": "Create a thin 'use client' component that subscribes to Supabase Realtime postgres_changes for the household's transactions, budgets, and recurring_items tables. On any INSERT/UPDATE/DELETE, call a revalidation server action. Mount in app layout.",
+      "verify": [
+        "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+        "npm run build 2>&1 | tail -20"
+      ],
+      "blockedBy": [1]
+    }
+  ],
+  "planVerify": [
+    "npx tsc --noEmit 2>&1 | grep -v 'household.ts' | head -20",
+    "npm run build 2>&1 | tail -20"
+  ],
+  "commitMessage": "feat(cache): add cacheTag to read actions, revalidateTag to mutations, Realtime invalidation",
+  "timestamp": "2026-03-01T15:00:00Z"
+}

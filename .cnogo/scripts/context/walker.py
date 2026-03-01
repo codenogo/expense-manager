@@ -1,7 +1,7 @@
 """File walker for context graph ingestion.
 
-Walks a repository discovering Python files, reading content, and computing
-SHA-256 hashes for incremental re-indexing support.
+Walks a repository discovering source files (Python, TypeScript, JavaScript),
+reading content, and computing SHA-256 hashes for incremental re-indexing support.
 
 Supports .gitignore patterns via fnmatch and has built-in skip patterns
 for common non-source directories.
@@ -78,8 +78,20 @@ def _in_skip_dir(rel_path: Path) -> bool:
     return any(part in _DEFAULT_SKIP for part in rel_path.parts)
 
 
+_EXTENSIONS: dict[str, str] = {
+    ".py": "python",
+    ".ts": "typescript",
+    ".tsx": "typescript",
+    ".js": "javascript",
+    ".jsx": "javascript",
+}
+
+
 def walk(repo_path: str | Path) -> list[FileEntry]:
-    """Walk a repository and return FileEntry list for all Python files.
+    """Walk a repository and return FileEntry list for all supported source files.
+
+    Discovers Python (.py), TypeScript (.ts, .tsx), and JavaScript (.js, .jsx)
+    files, setting ``FileEntry.language`` accordingly.
 
     Args:
         repo_path: Root directory to walk.
@@ -91,7 +103,15 @@ def walk(repo_path: str | Path) -> list[FileEntry]:
     gitignore_patterns = _load_gitignore(repo_path)
     entries: list[FileEntry] = []
 
-    for abs_path in sorted(repo_path.rglob("*.py")):
+    # Collect all files once, then filter by extension
+    for abs_path in sorted(repo_path.rglob("*")):
+        if not abs_path.is_file():
+            continue
+
+        lang = _EXTENSIONS.get(abs_path.suffix)
+        if lang is None:
+            continue
+
         rel_path = abs_path.relative_to(repo_path)
 
         if _in_skip_dir(rel_path):
@@ -100,11 +120,15 @@ def walk(repo_path: str | Path) -> list[FileEntry]:
         if _is_ignored(PurePosixPath(rel_path), gitignore_patterns):
             continue
 
-        content = abs_path.read_text()
+        try:
+            content = abs_path.read_text(encoding="utf-8", errors="replace")
+        except (OSError, UnicodeDecodeError):
+            continue
+
         entries.append(FileEntry(
             path=rel_path,
             content=content,
-            language="python",
+            language=lang,
             content_hash=_compute_hash(content),
         ))
 
