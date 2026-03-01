@@ -10,12 +10,13 @@ import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 interface DatePickerProps {
-  name: string
+  name?: string
   defaultValue?: string
   placeholder?: string
   disabled?: boolean
   required?: boolean
   className?: string
+  onChange?: (value: string) => void
 }
 
 function DatePicker({
@@ -25,6 +26,7 @@ function DatePicker({
   disabled,
   required,
   className,
+  onChange,
 }: DatePickerProps) {
   const [date, setDate] = React.useState<Date | undefined>(
     defaultValue ? new Date(defaultValue + 'T00:00:00') : undefined
@@ -34,6 +36,8 @@ function DatePicker({
   const handleSelect = (selected: Date | undefined) => {
     setDate(selected)
     setOpen(false)
+    const isoValue = selected ? selected.toISOString().split('T')[0] : ''
+    onChange?.(isoValue)
   }
 
   const formattedValue = date
@@ -64,7 +68,7 @@ function DatePicker({
           defaultMonth={date}
         />
       </PopoverContent>
-      <input type="hidden" name={name} value={formattedValue} required={required} />
+      {name && <input type="hidden" name={name} value={formattedValue} required={required} />}
     </Popover>
   )
 }

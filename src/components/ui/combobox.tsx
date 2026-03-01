@@ -21,7 +21,7 @@ interface ComboboxOption {
 }
 
 interface ComboboxProps {
-  name: string
+  name?: string
   options: ComboboxOption[]
   defaultValue?: string
   placeholder?: string
@@ -30,6 +30,7 @@ interface ComboboxProps {
   disabled?: boolean
   required?: boolean
   className?: string
+  onChange?: (value: string) => void
 }
 
 function Combobox({
@@ -42,6 +43,7 @@ function Combobox({
   disabled,
   required,
   className,
+  onChange,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(defaultValue)
@@ -77,8 +79,10 @@ function Combobox({
                   key={option.value}
                   value={option.label}
                   onSelect={() => {
-                    setValue(option.value === value ? '' : option.value)
+                    const newValue = option.value === value ? '' : option.value
+                    setValue(newValue)
                     setOpen(false)
+                    onChange?.(newValue)
                   }}
                 >
                   {option.label}
@@ -94,7 +98,7 @@ function Combobox({
           </CommandList>
         </Command>
       </PopoverContent>
-      <input type="hidden" name={name} value={value} required={required} />
+      {name && <input type="hidden" name={name} value={value} required={required} />}
     </Popover>
   )
 }

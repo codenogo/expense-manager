@@ -3,6 +3,16 @@ import { getDebt, updateDebt, deleteDebt, recordPayment } from '@/lib/actions/de
 import { getAccounts } from '@/lib/actions/accounts'
 import { DebtForm } from '@/components/debts/debt-form'
 import { Currency } from '@/components/ui/currency'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface DebtDetailPageProps {
   params: Promise<{ id: string }>
@@ -17,20 +27,20 @@ export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
   const recordPaymentWithId = recordPayment.bind(null, id)
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
+    <div className="min-h-screen bg-background">
+      <header className="bg-card border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/debts"
-              className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Debts
             </Link>
-            <span className="text-slate-300">/</span>
-            <h1 className="text-lg font-semibold text-slate-900">{debt.name}</h1>
+            <span className="text-border">/</span>
+            <h1 className="text-lg font-semibold text-foreground">{debt.name}</h1>
           </div>
-          <p className="text-sm font-semibold text-slate-700">
+          <p className="text-sm font-semibold text-foreground">
             <Currency amount={debt.balance} />
           </p>
         </div>
@@ -40,82 +50,61 @@ export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
         <DebtForm debt={debt} action={updateWithId} />
 
         <div className="max-w-lg">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-sm font-semibold text-slate-900 mb-4">Record Payment</h3>
+          <div className="bg-card rounded-xl shadow-sm p-6">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Record Payment</h3>
             <form action={recordPaymentWithId} className="space-y-4">
               <div>
-                <label
-                  htmlFor="payment_amount"
-                  className="block text-sm font-medium text-slate-700 mb-1"
-                >
+                <Label htmlFor="payment_amount" className="mb-1">
                   Amount (KES)
-                </label>
-                <input
+                </Label>
+                <Input
                   id="payment_amount"
                   name="amount"
                   type="number"
                   step="0.01"
                   min="0"
                   required
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0.00"
                 />
               </div>
 
               <div>
-                <label
-                  htmlFor="account_id"
-                  className="block text-sm font-medium text-slate-700 mb-1"
-                >
-                  Account <span className="text-slate-400">(optional)</span>
-                </label>
-                <select
-                  id="account_id"
-                  name="account_id"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">None</option>
-                  {accounts.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.name}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-slate-400 mt-1">
+                <Label className="mb-1">
+                  Account <span className="text-muted-foreground font-normal">(optional)</span>
+                </Label>
+                <Select name="account_id" defaultValue="">
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
                   Set an account to auto-create an expense transaction.
                 </p>
               </div>
 
-              <button
-                type="submit"
-                className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                Record Payment
-              </button>
+              <Button type="submit">Record Payment</Button>
             </form>
           </div>
         </div>
 
         <div className="max-w-lg">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-red-100">
-            <h3 className="text-sm font-semibold text-red-700 mb-1">Danger Zone</h3>
-            <p className="text-sm text-slate-500 mb-4">
+          <div className="bg-card rounded-xl shadow-sm p-6 border border-destructive/20">
+            <h3 className="text-sm font-semibold text-destructive mb-1">Danger Zone</h3>
+            <p className="text-sm text-muted-foreground mb-4">
               Deleting this debt is permanent and cannot be undone.
             </p>
-            <form
-              action={deleteWithId}
-              onSubmit={(e) => {
-                if (!confirm(`Delete "${debt.name}"? This cannot be undone.`)) {
-                  e.preventDefault()
-                }
-              }}
-            >
-              <button
-                type="submit"
-                className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-              >
+            <form action={deleteWithId}>
+              <Button type="submit" variant="destructive">
                 Delete Debt
-              </button>
+              </Button>
             </form>
           </div>
         </div>

@@ -1,8 +1,16 @@
 'use client'
 
+import * as React from 'react'
 import Link from 'next/link'
 import { createTransaction, updateTransaction } from '@/lib/actions/transactions'
 import type { Tables } from '@/types/database'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { DatePicker } from '@/components/ui/date-picker'
+import { Combobox } from '@/components/ui/combobox'
 
 interface TransactionFormProps {
   accounts: Tables<'accounts'>[]
@@ -21,42 +29,46 @@ export function TransactionForm({ accounts, categories, transaction }: Transacti
   const defaultDate = transaction?.date ?? today
   const defaultType = transaction?.type ?? 'expense'
 
+  const [type, setType] = React.useState(defaultType)
+
+  const accountOptions = accounts.map((a) => ({ value: a.id, label: a.name }))
+  const categoryOptions = categories.map((c) => ({ value: c.id, label: c.name }))
+
   return (
     <div className="max-w-lg">
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-6">
+      <div className="bg-card rounded-xl shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-6">
           {isEdit ? 'Edit Transaction' : 'New Transaction'}
         </h2>
 
         <form action={action} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Type</label>
-            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+            <Label className="mb-2">Type</Label>
+            <div className="flex rounded-lg overflow-hidden">
               {(['expense', 'income'] as const).map((t) => (
-                <label
+                <Button
                   key={t}
-                  className="flex-1 text-center cursor-pointer"
+                  type="button"
+                  variant={type === t ? 'default' : 'outline'}
+                  className={cn(
+                    'flex-1 rounded-none capitalize',
+                    t === 'expense' && 'rounded-l-lg',
+                    t === 'income' && 'rounded-r-lg'
+                  )}
+                  onClick={() => setType(t)}
                 >
-                  <input
-                    type="radio"
-                    name="type"
-                    value={t}
-                    defaultChecked={defaultType === t}
-                    className="sr-only peer"
-                  />
-                  <span className="block px-4 py-2.5 text-sm font-medium text-slate-600 peer-checked:bg-blue-600 peer-checked:text-white transition-colors capitalize">
-                    {t === 'expense' ? 'Expense' : 'Income'}
-                  </span>
-                </label>
+                  {t === 'expense' ? 'Expense' : 'Income'}
+                </Button>
               ))}
             </div>
+            <input type="hidden" name="type" value={type} />
           </div>
 
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-slate-700 mb-1">
+            <Label htmlFor="amount" className="mb-1">
               Amount (KES)
-            </label>
-            <input
+            </Label>
+            <Input
               id="amount"
               name="amount"
               type="number"
@@ -64,93 +76,67 @@ export function TransactionForm({ accounts, categories, transaction }: Transacti
               min="0"
               required
               defaultValue={defaultAmount}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="0.00"
             />
           </div>
 
           <div>
-            <label htmlFor="date" className="block text-sm font-medium text-slate-700 mb-1">
-              Date
-            </label>
-            <input
-              id="date"
+            <Label className="mb-1">Date</Label>
+            <DatePicker
               name="date"
-              type="date"
               required
               defaultValue={defaultDate}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <div>
-            <label htmlFor="account_id" className="block text-sm font-medium text-slate-700 mb-1">
-              Account
-            </label>
-            <select
-              id="account_id"
+            <Label className="mb-1">Account</Label>
+            <Combobox
               name="account_id"
-              required
+              options={accountOptions}
               defaultValue={transaction?.account_id ?? ''}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="" disabled>
-                Select account
-              </option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Select account"
+              searchPlaceholder="Search accounts..."
+              emptyMessage="No accounts found."
+              required
+            />
           </div>
 
           <div>
-            <label htmlFor="category_id" className="block text-sm font-medium text-slate-700 mb-1">
-              Category <span className="text-slate-400">(optional)</span>
-            </label>
-            <select
-              id="category_id"
+            <Label className="mb-1">
+              Category <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
+            <Combobox
               name="category_id"
+              options={categoryOptions}
               defaultValue={transaction?.category_id ?? ''}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Uncategorized</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+              placeholder="Uncategorized"
+              searchPlaceholder="Search categories..."
+              emptyMessage="No categories found."
+            />
           </div>
 
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-slate-700 mb-1">
-              Notes <span className="text-slate-400">(optional)</span>
-            </label>
-            <textarea
+            <Label htmlFor="notes" className="mb-1">
+              Notes <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
+            <Textarea
               id="notes"
               name="notes"
               rows={3}
               defaultValue={transaction?.notes ?? ''}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               placeholder="Add a note..."
+              className="resize-none"
             />
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button
-              type="submit"
-              className="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-            >
+            <Button type="submit">
               {isEdit ? 'Save Changes' : 'Add Transaction'}
-            </button>
-            <Link
-              href="/transactions"
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Cancel
-            </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/transactions">Cancel</Link>
+            </Button>
           </div>
         </form>
       </div>
