@@ -237,3 +237,21 @@ export async function deleteTransaction(id: string): Promise<void> {
   updateTag(`reports-${householdId}`)
   redirect('/transactions')
 }
+
+export async function searchTransactions(query: string): Promise<Tables<'transactions'>[]> {
+  if (!query.trim()) return []
+
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('household_id', householdId)
+    .ilike('notes', `%${query}%`)
+    .order('date', { ascending: false })
+    .limit(50)
+
+  if (error) throw new Error(error.message)
+  return data ?? []
+}
