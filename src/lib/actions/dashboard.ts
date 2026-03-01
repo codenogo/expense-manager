@@ -52,14 +52,24 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
   const startDate = `${year}-${String(mon).padStart(2, '0')}-01`
   const endDate = new Date(year, mon, 0).toISOString().split('T')[0] // last day of month
 
-  // Get transactions for the month
-  const { data: transactions } = await supabase
-    .from('transactions')
-    .select('*')
-    .eq('household_id', householdId)
-    .gte('date', startDate)
-    .lte('date', endDate)
-    .order('date', { ascending: false })
+  // Fetch transactions, categories, and accounts in parallel
+  const [{ data: transactions }, { data: categories }, { data: accounts }] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('*')
+      .eq('household_id', householdId)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false }),
+    supabase
+      .from('categories')
+      .select('id, name')
+      .eq('household_id', householdId),
+    supabase
+      .from('accounts')
+      .select('id, name')
+      .eq('household_id', householdId),
+  ])
 
   const txs = transactions ?? []
 
@@ -67,17 +77,6 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
   const totalIncome = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpenses = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
   const net = totalIncome - totalExpenses
-
-  // Get categories and accounts for name lookups
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('id, name')
-    .eq('household_id', householdId)
-
-  const { data: accounts } = await supabase
-    .from('accounts')
-    .select('id, name')
-    .eq('household_id', householdId)
 
   const categoryMap = new Map((categories ?? []).map(c => [c.id, c.name]))
   const accountMap = new Map((accounts ?? []).map(a => [a.id, a.name]))
@@ -110,4 +109,34 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
   }))
 
   return { totalIncome, totalExpenses, net, categoryBreakdown, recentTransactions }
+}
+
+export interface MemberTransaction {
+  created_by: string
+  type: string
+  amount: number
+}
+
+export async function getMemberTransactions(month?: string): Promise<MemberTransaction[]> {
+  const supabase = await createClient()
+  const householdId = await getHouseholdId()
+
+  const now = new Date()
+  const targetMonth = month ?? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const [year, mon] = targetMonth.split('-').map(Number)
+  const startDate = `${year}-${String(mon).padStart(2, '0')}-01`
+  const endDate = new Date(year, mon, 0).toISOString().split('T')[0]
+
+  const { data } = await supabase
+    .from('transactions')
+    .select('created_by, type, amount')
+    .eq('household_id', householdId)
+    .gte('date', startDate)
+    .lte('date', endDate)
+
+  return (data ?? []).map((tx) => ({
+    created_by: tx.created_by ?? '',
+    type: tx.type,
+    amount: tx.amount,
+  }))
 }

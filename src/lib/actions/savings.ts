@@ -139,29 +139,31 @@ export async function addContribution(id: string, formData: FormData): Promise<v
 
   const newAmount = goal.current_amount + amountCents
 
-  const { error: updateError } = await supabase
-    .from('savings_goals')
-    .update({ current_amount: newAmount })
-    .eq('id', id)
-    .eq('household_id', householdId)
-
-  if (updateError) throw new Error(updateError.message)
-
   if (goal.account_id) {
     const today = new Date().toISOString().split('T')[0]
 
-    const { error: txError } = await supabase.from('transactions').insert({
-      household_id: householdId,
-      account_id: goal.account_id,
-      amount: amountCents,
-      type: 'income',
-      date: today,
-      notes: 'Savings contribution',
-      created_by: user.id,
-    })
+    // Run goal update and transaction insert in parallel
+    const [{ error: updateError }, { error: txError }] = await Promise.all([
+      supabase
+        .from('savings_goals')
+        .update({ current_amount: newAmount })
+        .eq('id', id)
+        .eq('household_id', householdId),
+      supabase.from('transactions').insert({
+        household_id: householdId,
+        account_id: goal.account_id,
+        amount: amountCents,
+        type: 'income',
+        date: today,
+        notes: 'Savings contribution',
+        created_by: user.id,
+      }),
+    ])
 
+    if (updateError) throw new Error(updateError.message)
     if (txError) throw new Error(txError.message)
 
+    // Then update account balance
     const { data: account, error: accountError } = await supabase
       .from('accounts')
       .select('balance')
@@ -178,6 +180,14 @@ export async function addContribution(id: string, formData: FormData): Promise<v
       .eq('household_id', householdId)
 
     if (balanceError) throw new Error(balanceError.message)
+  } else {
+    const { error: updateError } = await supabase
+      .from('savings_goals')
+      .update({ current_amount: newAmount })
+      .eq('id', id)
+      .eq('household_id', householdId)
+
+    if (updateError) throw new Error(updateError.message)
   }
 
   revalidatePath('/savings')

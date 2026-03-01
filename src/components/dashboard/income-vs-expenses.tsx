@@ -1,5 +1,3 @@
-'use client'
-
 interface IncomeVsExpensesProps {
   data: { month: string; label: string; income: number; expenses: number }[]
 }

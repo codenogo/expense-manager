@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { Tables } from '@/types/database'
 
 interface CategoryNodeProps {
   category: Tables<'categories'>
   childCategories: Tables<'categories'>[]
-  allCategories: Tables<'categories'>[]
+  childrenMap: Map<string | null, Tables<'categories'>[]>
   onEdit: (cat: Tables<'categories'>) => void
   onDelete: (id: string) => void
   depth: number
@@ -15,7 +15,7 @@ interface CategoryNodeProps {
 function CategoryNode({
   category,
   childCategories,
-  allCategories,
+  childrenMap,
   onEdit,
   onDelete,
   depth,
@@ -75,20 +75,17 @@ function CategoryNode({
 
       {hasChildren && expanded && (
         <div className="border-l-2 border-gray-200 ml-5">
-          {childCategories.map((child) => {
-            const grandChildren = allCategories.filter((c) => c.parent_id === child.id)
-            return (
-              <CategoryNode
-                key={child.id}
-                category={child}
-                childCategories={grandChildren}
-                allCategories={allCategories}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                depth={depth + 1}
-              />
-            )
-          })}
+          {childCategories.map((child) => (
+            <CategoryNode
+              key={child.id}
+              category={child}
+              childCategories={childrenMap.get(child.id) ?? []}
+              childrenMap={childrenMap}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              depth={depth + 1}
+            />
+          ))}
         </div>
       )}
     </div>
@@ -102,7 +99,17 @@ interface CategoryTreeProps {
 }
 
 export function CategoryTree({ categories, onEdit, onDelete }: CategoryTreeProps) {
-  const rootCategories = categories.filter((c) => c.parent_id === null)
+  const childrenMap = useMemo(() => {
+    const map = new Map<string | null, Tables<'categories'>[]>()
+    for (const cat of categories) {
+      const key = cat.parent_id
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(cat)
+    }
+    return map
+  }, [categories])
+
+  const rootCategories = childrenMap.get(null) ?? []
 
   if (categories.length === 0) {
     return (
@@ -114,20 +121,17 @@ export function CategoryTree({ categories, onEdit, onDelete }: CategoryTreeProps
 
   return (
     <div className="divide-y divide-slate-100">
-      {rootCategories.map((cat) => {
-        const catChildren = categories.filter((c) => c.parent_id === cat.id)
-        return (
-          <CategoryNode
-            key={cat.id}
-            category={cat}
-            childCategories={catChildren}
-            allCategories={categories}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            depth={0}
-          />
-        )
-      })}
+      {rootCategories.map((cat) => (
+        <CategoryNode
+          key={cat.id}
+          category={cat}
+          childCategories={childrenMap.get(cat.id) ?? []}
+          childrenMap={childrenMap}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          depth={0}
+        />
+      ))}
     </div>
   )
 }

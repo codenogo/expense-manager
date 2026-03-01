@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import Link from 'next/link'
 import { markPaid, deleteRecurring } from '@/lib/actions/recurring'
 import { formatKES } from '@/components/ui/currency'
@@ -129,20 +130,21 @@ function BillItem({ item, accounts, categories, status }: BillItemProps) {
 }
 
 export function BillList({ items, accounts, categories }: BillListProps) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const { overdue, dueSoon, upcoming } = useMemo(() => {
+    const overdue = items
+      .filter((i) => getStatus(i.next_due_date) === 'overdue')
+      .sort((a, b) => a.next_due_date.localeCompare(b.next_due_date))
 
-  const overdue = items
-    .filter((i) => getStatus(i.next_due_date) === 'overdue')
-    .sort((a, b) => a.next_due_date.localeCompare(b.next_due_date))
+    const dueSoon = items
+      .filter((i) => getStatus(i.next_due_date) === 'due-soon')
+      .sort((a, b) => a.next_due_date.localeCompare(b.next_due_date))
 
-  const dueSoon = items
-    .filter((i) => getStatus(i.next_due_date) === 'due-soon')
-    .sort((a, b) => a.next_due_date.localeCompare(b.next_due_date))
+    const upcoming = items
+      .filter((i) => getStatus(i.next_due_date) === 'upcoming')
+      .sort((a, b) => a.next_due_date.localeCompare(b.next_due_date))
 
-  const upcoming = items
-    .filter((i) => getStatus(i.next_due_date) === 'upcoming')
-    .sort((a, b) => a.next_due_date.localeCompare(b.next_due_date))
+    return { overdue, dueSoon, upcoming }
+  }, [items])
 
   if (items.length === 0) {
     return (

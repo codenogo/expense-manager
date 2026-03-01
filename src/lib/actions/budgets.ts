@@ -32,11 +32,14 @@ export async function getBudgets(month: string): Promise<BudgetWithSpent[]> {
   const supabase = await createClient()
   const householdId = await getHouseholdId()
 
+  // month column is type date — always store as first day of month
+  const monthDate = month.length === 7 ? `${month}-01` : month
+
   const { data: budgets, error: budgetsError } = await supabase
     .from('budgets')
     .select('*')
     .eq('household_id', householdId)
-    .eq('month', month)
+    .eq('month', monthDate)
 
   if (budgetsError) throw new Error(budgetsError.message)
   if (!budgets || budgets.length === 0) return []
@@ -59,31 +62,34 @@ export async function getBudgets(month: string): Promise<BudgetWithSpent[]> {
       ? `${year + 1}-01-01`
       : `${year}-${String(monthNum + 1).padStart(2, '0')}-01`
 
-  const result: BudgetWithSpent[] = await Promise.all(
-    budgets.map(async (budget) => {
-      const { data: txRows, error: txError } = await supabase
-        .from('transactions')
-        .select('amount')
-        .eq('household_id', householdId)
-        .eq('category_id', budget.category_id)
-        .eq('type', 'expense')
-        .gte('date', startDate)
-        .lt('date', nextMonthStr)
+  // Single query for ALL expense transactions in the month for these categories
+  const { data: allTxs, error: txError } = await supabase
+    .from('transactions')
+    .select('category_id, amount')
+    .eq('household_id', householdId)
+    .eq('type', 'expense')
+    .in('category_id', categoryIds)
+    .gte('date', startDate)
+    .lt('date', nextMonthStr)
 
-      if (txError) throw new Error(txError.message)
+  if (txError) throw new Error(txError.message)
 
-      const spent = (txRows ?? []).reduce((sum, tx) => sum + tx.amount, 0)
+  // Aggregate in-memory
+  const spentByCategory = new Map<string, number>()
+  for (const tx of allTxs ?? []) {
+    if (tx.category_id) {
+      spentByCategory.set(tx.category_id, (spentByCategory.get(tx.category_id) ?? 0) + tx.amount)
+    }
+  }
 
-      return {
-        id: budget.id,
-        category_id: budget.category_id,
-        category_name: categoryMap.get(budget.category_id) ?? 'Unknown',
-        month: budget.month,
-        amount: budget.amount,
-        spent,
-      }
-    })
-  )
+  const result: BudgetWithSpent[] = budgets.map((budget) => ({
+    id: budget.id,
+    category_id: budget.category_id,
+    category_name: categoryMap.get(budget.category_id) ?? 'Unknown',
+    month: budget.month,
+    amount: budget.amount,
+    spent: spentByCategory.get(budget.category_id) ?? 0,
+  }))
 
   return result
 }
@@ -98,6 +104,7 @@ export async function setBudget(formData: FormData): Promise<{ error?: string } 
   if (isNaN(amountKES) || amountKES <= 0) return { error: 'Amount must be a positive number' }
 
   const amount = Math.round(amountKES * 100)
+  const monthDate = month.length === 7 ? `${month}-01` : month
 
   const supabase = await createClient()
   const householdId = await getHouseholdId()
@@ -108,7 +115,7 @@ export async function setBudget(formData: FormData): Promise<{ error?: string } 
     .select('id')
     .eq('household_id', householdId)
     .eq('category_id', category_id)
-    .eq('month', month)
+    .eq('month', monthDate)
     .single()
 
   if (existing) {
@@ -121,7 +128,7 @@ export async function setBudget(formData: FormData): Promise<{ error?: string } 
     const { error } = await supabase.from('budgets').insert({
       household_id: householdId,
       category_id,
-      month,
+      month: monthDate,
       amount,
     })
     if (error) return { error: error.message }

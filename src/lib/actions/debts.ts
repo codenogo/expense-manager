@@ -150,29 +150,31 @@ export async function recordPayment(id: string, formData: FormData): Promise<voi
 
   const newBalance = debt.balance - amountCents
 
-  const { error: updateError } = await supabase
-    .from('debts')
-    .update({ balance: newBalance })
-    .eq('id', id)
-    .eq('household_id', householdId)
-
-  if (updateError) throw new Error(updateError.message)
-
   if (accountId) {
     const today = new Date().toISOString().split('T')[0]
 
-    const { error: txError } = await supabase.from('transactions').insert({
-      household_id: householdId,
-      account_id: accountId,
-      amount: amountCents,
-      type: 'expense',
-      date: today,
-      notes: `Debt payment`,
-      created_by: user.id,
-    })
+    // Run debt update and transaction insert in parallel
+    const [{ error: updateError }, { error: txError }] = await Promise.all([
+      supabase
+        .from('debts')
+        .update({ balance: newBalance })
+        .eq('id', id)
+        .eq('household_id', householdId),
+      supabase.from('transactions').insert({
+        household_id: householdId,
+        account_id: accountId,
+        amount: amountCents,
+        type: 'expense',
+        date: today,
+        notes: 'Debt payment',
+        created_by: user.id,
+      }),
+    ])
 
+    if (updateError) throw new Error(updateError.message)
     if (txError) throw new Error(txError.message)
 
+    // Then update account balance
     const { data: account, error: accountError } = await supabase
       .from('accounts')
       .select('balance')
@@ -189,6 +191,14 @@ export async function recordPayment(id: string, formData: FormData): Promise<voi
       .eq('household_id', householdId)
 
     if (balanceError) throw new Error(balanceError.message)
+  } else {
+    const { error: updateError } = await supabase
+      .from('debts')
+      .update({ balance: newBalance })
+      .eq('id', id)
+      .eq('household_id', householdId)
+
+    if (updateError) throw new Error(updateError.message)
   }
 
   revalidatePath('/debts')

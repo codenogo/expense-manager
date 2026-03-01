@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { getHousehold } from '@/lib/actions/household'
-import { getDashboardData } from '@/lib/actions/dashboard'
+import { getDashboardData, getMemberTransactions } from '@/lib/actions/dashboard'
 import { getRecurringItems } from '@/lib/actions/recurring'
 import { getCategories } from '@/lib/actions/categories'
 import { getMonthlyTrends } from '@/lib/actions/reports'
@@ -15,39 +14,17 @@ import { IncomeVsExpenses } from '@/components/dashboard/income-vs-expenses'
 import { MemberContributions } from '@/components/dashboard/member-contributions'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
-
-  const now = new Date()
-  const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
-  const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
-
-  const [{ household, members }, dashboardData, recurringItems, categories, trends] =
+  const [{ household, members }, dashboardData, recurringItems, categories, trends, memberTxs] =
     await Promise.all([
       getHousehold(),
       getDashboardData(),
       getRecurringItems(),
       getCategories(),
       getMonthlyTrends(),
+      getMemberTransactions(),
     ])
 
   if (!household) redirect('/onboarding')
-
-  const { data: memberTxsRaw } = await supabase
-    .from('transactions')
-    .select('created_by, type, amount')
-    .eq('household_id', household.id)
-    .gte('date', startDate)
-    .lte('date', endDate)
-
-  const memberTxs = (memberTxsRaw ?? []).map((tx) => ({
-    created_by: tx.created_by ?? '',
-    type: tx.type,
-    amount: tx.amount,
-  }))
 
   const memberList = members.map((m) => ({
     id: m.id,
